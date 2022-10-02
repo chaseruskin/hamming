@@ -45,6 +45,11 @@ RATE = DATA_BITS/TOTAL_BITS
 # --- Classes and Functions ----------------------------------------------------
 
 def display(block: List[int], width=None, end='\n'):
+    '''
+    Formats the Hamming-code block in a square arrangement.
+    
+    Use `width` to set a custom number of bits to print per line.
+    '''
     # auto-detect width for pretty-formatting block
     width = int(log(len(block), 2)) if width == None else width
     i = 0
@@ -58,21 +63,29 @@ def display(block: List[int], width=None, end='\n'):
 
 
 def set_parity_bit(arr: List[int]) -> bool:
-    '''Checks if the `arr` is odd parity in which case the parity bit
-    must be set to '1' to achieve an even parity.'''
+    '''
+    Checks if the `arr` is odd parity in which case the parity bit
+    must be set to '1' to achieve an even parity.
+    '''
     # count the number of 1's in the list
     return arr.count(1) % 2
 
 
 def _binary_space(n: int) -> List[str]:
+    '''
+    Returns binary strings for the possible combinations of input from
+    0 to `n`.
+    '''
     space = []
     for m in range(0, n):
-        space += [format(m, '0'+str(WIDTH)+'b')]
+        space += [format(m, '0'+str(int(log(n, 2)))+'b')]
     return space
 
 
 def _get_parity_coverage(i: int) -> List[int]:
-    '''Returns the list of indices for the i-th parity bit.'''
+    '''
+    Returns the list of indices covered by the i-th parity bit.
+    '''
     space = _binary_space(TOTAL_BITS)
     subset = []
     # check the i-th bit positions
@@ -84,6 +97,11 @@ def _get_parity_coverage(i: int) -> List[int]:
     
 
 def encode_hamming_ecc(block: List[int]) -> List[int]:
+    '''
+    Sets the parity bits for the Hamming-code block.
+
+    Includes setting the overall parity of the block at 0th bit.
+    '''
     # questions to capture redundancy for each parity bit
     for i in range(0, PARITY_BITS):
         coverage = _get_parity_coverage(i)
@@ -96,11 +114,13 @@ def encode_hamming_ecc(block: List[int]) -> List[int]:
 
 
 def decode_hamming_ecc(block: List[int]) -> Tuple[List[int], bool]:
-    '''Decods the hamming-code. 
+    '''
+    Decodes the hamming-code. 
     
     Corrects single-bit errors and detects double-bit errors. 
     
-    Returns the fixed block and the valid signal.'''
+    Returns the fixed block and the valid signal.
+    '''
     # answer the question for each parity bit
     answer = ''
     # block parity
@@ -139,6 +159,11 @@ def decode_hamming_ecc(block: List[int]) -> Tuple[List[int], bool]:
 
 
 def create_hamming_block(chunk: List[int]) -> List[int]:
+    '''
+    Inserts parity bits at the corresponding power-of-2 indices.
+
+    Frames the data with the parity bits.
+    '''
     # position 0 along with other powers of 2 are reserved for parity data
     chunk.insert(0, 0)
     for i in range(0, PARITY_BITS):
@@ -147,6 +172,12 @@ def create_hamming_block(chunk: List[int]) -> List[int]:
 
 
 def destroy_hamming_block(chunk: List[int]) -> List[int]:
+    '''
+    Pops parity bits at the corresponding power-of-2 indices, revealing
+    the data.
+
+    Deframes the parity bits from the data.
+    '''
     # remove parity bits
     for i in range(WIDTH-1, -1, -1):
         chunk.pop(2**i)
@@ -155,6 +186,10 @@ def destroy_hamming_block(chunk: List[int]) -> List[int]:
 
 
 def partition(msg: List[int]) -> List[List[int]]:
+    '''
+    Splits a long string of bits `msg` into a list of chunks with `DATA_BITS`
+    size to be formed into Hamming-code blocks.
+    '''
     chunks = []
     ctr = 0
     while ctr < len(msg):
@@ -174,6 +209,9 @@ def send(block: List[int], noise=None, spots=[]) -> List[int]:
     '''
     Transmits a pure hamming-code block over a noisy channel 
     that may flip 0, 1, or 2 bits.
+
+    Use `spots` to explicitly declare which positions to flip.
+    Use `noise` to explicitly set the number of flips in the transmission.
     '''
     # use custom-defined indices to flip
     if len(spots) > 0:
@@ -186,14 +224,14 @@ def send(block: List[int], noise=None, spots=[]) -> List[int]:
         noise = random.randint(0, 2)
     for _ in range(0, noise):
         # select a random index not already flipped
-        flip = random.randint(0, TOTAL_BITS-1)
+        flip = random.randint(0, len(block)-1)
         while spots.count(flip) > 0:
-            flip = random.randint(0, TOTAL_BITS-1)
+            flip = random.randint(0, len(block)-1)
         # reverse the bit
         block[flip] ^= 1
         # remember that position is now flipped
         spots += [flip]
-    print("\nBits flipped during transmission:", spots, end='\n\n')
+    # print("\nBits flipped during transmission:", spots, end='\n\n')
     return block
 
 
@@ -263,6 +301,46 @@ else:
 # unit tests for various hamming functions
 class TestHammingEcc(unittest.TestCase):
     # @todo
-    def test_placeholder(self):
+    def test_smoke(self):
         self.assertEqual(True, True)
+
+
+    def test_bin_space(self):
+        space = _binary_space(2**1)
+        self.assertEqual(space, ['0', '1'])
+
+        space = _binary_space(2**2)
+        self.assertEqual(space, ['00', '01', '10', '11'])
+
+        space = _binary_space(2**3)
+        self.assertEqual(space, [
+            '000', '001', '010', '011',
+            '100', '101', '110', '111'
+        ])
+        pass
+
+
+    def test_send(self):
+        # flip 1 location
+        message = [0, 1, 1]
+        send(message, spots=[0])
+        self.assertEqual(message, [1, 1, 1])
+        # flip 2 locations
+        message = [0, 1, 1]
+        send(message, spots=[0, 2])
+        self.assertEqual(message, [1, 1, 0])
+        # flip 1 bit
+        message = [0, 1, 1, 0]
+        send(message, noise=1)
+        self.assertNotEqual(message, [0, 1, 1, 0])
+        # flip 0 bits
+        message = [0, 1, 1, 0]
+        send(message, noise=0, spots=[])
+        self.assertEqual(message, [0, 1, 1, 0])
+        pass
+
+
+    def test_get_parity_coverage(self):
+        pass
+
     pass
