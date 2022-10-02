@@ -1,0 +1,268 @@
+# File: hamming.py
+# Author: Chase Ruskin
+# Created: 2022-10-02
+# Details: 
+#   Python behavioral model for standard hamming code error-correction code.
+#
+#   Single error correction, double error detection (SECDED) using "extended
+#   hamming code" due to additional parity bit in 0th position to check overall 
+#   block parity.
+#
+#   In this script, an EVEN parity represents an even number of 1's, therefore
+#   the parity bit is set to 0. An ODD parity represents an odd number of 1's,
+#   therefore the parity bit must be set to 1 to achieve even parity.
+#
+#   The implementation is generic over the i number of PARITY_BITS, where i > 1.
+#   The Hamming-code is unreliable with errors > 2 (errors may cancel or be 
+#   unrecoverable).
+#
+#   To execute unit tests for this module, run: `python -m unittest hamming.py`.
+#
+# References:
+#   "How to send a self-correcting message (Hamming codes)" - 3Blue1Brown
+#   https://www.youtube.com/watch?v=X8jsijhllIA
+#   
+#   "Hamming code" - Wikipedia
+#   https://en.wikipedia.org/wiki/Hamming_code#[7,4]_Hamming_code
+import unittest
+from math import log
+from typing import List
+from typing import Tuple
+import random
+
+# --- Constants ----------------------------------------------------------------
+
+# the number of parity bits (excluding additional parity bit for SECDED)
+# all other constants are derived from defining the number of parity bits
+PARITY_BITS = WIDTH = 5
+
+TOTAL_BITS = 2**PARITY_BITS
+
+DATA_BITS = 2**PARITY_BITS-PARITY_BITS-1
+
+RATE = DATA_BITS/TOTAL_BITS
+
+# --- Classes and Functions ----------------------------------------------------
+
+def display(block: List[int], width=None, end='\n'):
+    # auto-detect width for pretty-formatting block
+    width = int(log(len(block), 2)) if width == None else width
+    i = 0
+    while i < len(block):
+        if i > 0 and i % width == 0:
+            print()
+        print(block[i], end=' ')
+        i += 1
+    print(end=end)
+    pass
+
+
+def set_parity_bit(arr: List[int]) -> bool:
+    '''Checks if the `arr` is odd parity in which case the parity bit
+    must be set to '1' to achieve an even parity.'''
+    # count the number of 1's in the list
+    return arr.count(1) % 2
+
+
+def _binary_space(n: int) -> List[str]:
+    space = []
+    for m in range(0, n):
+        space += [format(m, '0'+str(WIDTH)+'b')]
+    return space
+
+
+def _get_parity_coverage(i: int) -> List[int]:
+    '''Returns the list of indices for the i-th parity bit.'''
+    space = _binary_space(TOTAL_BITS)
+    subset = []
+    # check the i-th bit positions
+    for s in space:
+        if s[PARITY_BITS-i-1] == '1':
+            subset += [s]
+    # convert from binary to decimal for target indices
+    return [int('0b'+x, base=2) for x in subset]
+    
+
+def encode_hamming_ecc(block: List[int]) -> List[int]:
+    # questions to capture redundancy for each parity bit
+    for i in range(0, PARITY_BITS):
+        coverage = _get_parity_coverage(i)
+        data_bits = [block[j] for j in coverage]
+        block[2**i] = set_parity_bit(data_bits)
+        pass
+    # set overall parity for SECDED
+    block[0] = set_parity_bit(block)
+    return block
+
+
+def decode_hamming_ecc(block: List[int]) -> Tuple[List[int], bool]:
+    '''Decods the hamming-code. 
+    
+    Corrects single-bit errors and detects double-bit errors. 
+    
+    Returns the fixed block and the valid signal.'''
+    # answer the question for each parity bit
+    answer = ''
+    # block parity
+    par_block = set_parity_bit(block)
+    # questions to capture redundancy for each parity bit
+    for i in range(PARITY_BITS-1, -1, -1):
+        coverage = _get_parity_coverage(i)
+        data_bits = [block[j] for j in coverage]
+        parity = set_parity_bit(data_bits)
+        if parity == 0:
+            # rule out the space
+            answer += '0'
+        else:
+            # include this space
+            answer += '1'
+        pass
+
+    # determine if there are unrecoverable errors or zero errors
+    if par_block == 0:
+        # check if two errors were detected
+        if answer.count('1') > 0:
+            print("info: Detected a double-bit error (unrecoverable)")
+            return (block, False)
+        # check if there were zero errors
+        else:
+            print("info: 0 errors detected")
+            return (block, True)
+
+    # otherwise, use the parity bits to pinpoint location of error to correct
+    i = int('0b'+answer, base=2)
+    print("info: Error index:", i, "("+answer+")")
+
+    # fix block at the pinpointed error index according to parity bits
+    block[i] ^= 1
+    return (block, True)
+
+
+def create_hamming_block(chunk: List[int]) -> List[int]:
+    # position 0 along with other powers of 2 are reserved for parity data
+    chunk.insert(0, 0)
+    for i in range(0, PARITY_BITS):
+        chunk.insert(2**i, 0)
+    return chunk
+
+
+def destroy_hamming_block(chunk: List[int]) -> List[int]:
+    # remove parity bits
+    for i in range(WIDTH-1, -1, -1):
+        chunk.pop(2**i)
+    chunk.pop(0)
+    return chunk
+
+
+def partition(msg: List[int]) -> List[List[int]]:
+    chunks = []
+    ctr = 0
+    while ctr < len(msg):
+        chunk = [0] * DATA_BITS    
+        for i in range(0, DATA_BITS):
+            chunk[i] = msg[ctr]
+            ctr += 1
+            # exit early if not enough bits in the message to fill the current chunk
+            if ctr == len(msg):
+                break
+        chunks += [chunk]
+        pass
+    return chunks
+
+
+def send(block: List[int], noise=None, spots=[]) -> List[int]:
+    '''
+    Transmits a pure hamming-code block over a noisy channel 
+    that may flip 0, 1, or 2 bits.
+    '''
+    # use custom-defined indices to flip
+    if len(spots) > 0:
+        for s in spots:
+            block[s] ^= 1
+        return block
+    # use random-defined amount of spots and locations
+    # use custom-defined amount of noise (0, 1, or 2)
+    if noise == None:
+        noise = random.randint(0, 2)
+    for _ in range(0, noise):
+        # select a random index not already flipped
+        flip = random.randint(0, TOTAL_BITS-1)
+        while spots.count(flip) > 0:
+            flip = random.randint(0, TOTAL_BITS-1)
+        # reverse the bit
+        block[flip] ^= 1
+        # remember that position is now flipped
+        spots += [flip]
+    print("\nBits flipped during transmission:", spots, end='\n\n')
+    return block
+
+
+# --- Logic --------------------------------------------------------------------
+
+# even parity = even number of 1's -> set bit to 0
+# odd parity  = odd  number of 1's -> set bit to 1 to achieve to even parity
+
+if PARITY_BITS < 2:
+    exit("error: PARITY_BITS must be greater than 1")
+
+# 33 bits
+message = [
+    0, 0, 1, 1, 0, 0, 0, 1,
+    1, 1, 0,
+    0, 1, 1, 0, 0, 1, 1, 0, 
+    1, 0, 0, 0, 0, 1, 0, 0, 
+    0, 0, 1, 1, 1, 0, 1, 1, 
+    0, 1, 0, 1, 1, 1, 0, 0,
+    1,
+] 
+
+# generate random message bits
+message = [random.randint(0, 1) for _ in range(0, DATA_BITS)]
+
+# divide message into 11-bit chunks
+chunk = partition(message)
+tx_message = chunk[0]
+print("Sender's Data:", tx_message)
+
+# reserve locations for parity bits
+block = create_hamming_block(tx_message.copy())
+print("Formatted hamming-code block:")
+display(block)
+
+# encode using hamming-code
+encode = encode_hamming_ecc(block)
+print("Transmitting:")
+display(encode)
+
+# simluate transmitting bits over a noisy channel
+packet = send(encode.copy(), spots=[], noise=None)
+print("Received:")
+display(packet)
+
+# decode using hamming-code
+(decode, valid) = decode_hamming_ecc(packet)
+
+# continue to deframe if the message was recoverable
+if valid == 1:
+    print("Corrected:")
+    display(decode)
+    assert(encode == decode)
+
+    # remove parity bits
+    rx_message = destroy_hamming_block(decode)
+    print("Receiver's Data:", rx_message)
+    assert(rx_message == tx_message)
+
+# if 2 errors detected, tell sender to resend the message
+else:
+    print("info: Receiver's data is corrupted (unrecoverable errors)")
+
+
+# --- Tests --------------------------------------------------------------------
+
+# unit tests for various hamming functions
+class TestHammingEcc(unittest.TestCase):
+    # @todo
+    def test_placeholder(self):
+        self.assertEqual(True, True)
+    pass
