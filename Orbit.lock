@@ -4,3 +4,12 @@
 [[ip]]
 name = "crus.ecc.hamming"
 version = "0.1.0"
+dependencies = [
+    { name = "crus.util.toolbox", version = "0.1" }
+]
+
+[[ip]]
+name = "crus.util.toolbox"
+version = "0.1.0"
+sum = "f5ecdda7945c0727beaef2486fd18446dff92afa8a37e1e9d7c452cf5777b561"
+source = "https://github.com/c-rus/toolbox.git"

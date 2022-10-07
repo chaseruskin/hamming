@@ -8,3 +8,4 @@ summary = "Hamming-code SECDED implementation"
 # To learn more about writing the manifest, see https://c-rus.github.io/orbit/4_topic/2_orbittoml.html
 
 [dependencies]
+crus.util.toolbox = "0.1"
