@@ -303,6 +303,7 @@ class TestHammingEcc(unittest.TestCase):
     # @todo
     def test_smoke(self):
         self.assertEqual(True, True)
+        pass
 
 
     def test_bin_space(self):
