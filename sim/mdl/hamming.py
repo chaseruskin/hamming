@@ -243,60 +243,62 @@ def send(block: List[int], noise=None, spots=[]) -> List[int]:
 # even parity = even number of 1's -> set bit to 0
 # odd parity  = odd  number of 1's -> set bit to 1 to achieve to even parity
 
-if PARITY_BITS < 2:
-    exit("error: PARITY_BITS must be greater than 1")
+if __name__ == '__main__':
+    if PARITY_BITS < 2:
+        exit("error: PARITY_BITS must be greater than 1")
 
-# 33 bits
-message = [
-    0, 0, 1, 1, 0, 0, 0, 1,
-    1, 1, 0,
-    0, 1, 1, 0, 0, 1, 1, 0, 
-    1, 0, 0, 0, 0, 1, 0, 0, 
-    0, 0, 1, 1, 1, 0, 1, 1, 
-    0, 1, 0, 1, 1, 1, 0, 0,
-    1,
-] 
+    # 33 bits
+    message = [
+        0, 0, 1, 1, 0, 0, 0, 1,
+        1, 1, 0,
+        0, 1, 1, 0, 0, 1, 1, 0, 
+        1, 0, 0, 0, 0, 1, 0, 0, 
+        0, 0, 1, 1, 1, 0, 1, 1, 
+        0, 1, 0, 1, 1, 1, 0, 0,
+        1,
+    ] 
 
-# generate random message bits
-message = [random.randint(0, 1) for _ in range(0, DATA_BITS)]
+    # generate random message bits
+    message = [random.randint(0, 1) for _ in range(0, DATA_BITS)]
 
-# divide message into 11-bit chunks
-chunk = partition(message)
-tx_message = chunk[0]
-print("Sender's Data:", tx_message)
+    # divide message into 11-bit chunks
+    chunk = partition(message)
+    tx_message = chunk[0]
+    print("Sender's Data:", tx_message)
 
-# reserve locations for parity bits
-block = create_hamming_block(tx_message.copy())
-print("Formatted hamming-code block:")
-display(block)
+    # reserve locations for parity bits
+    block = create_hamming_block(tx_message.copy())
+    print("Formatted hamming-code block:")
+    display(block)
 
-# encode using hamming-code
-encode = encode_hamming_ecc(block)
-print("Transmitting:")
-display(encode)
+    # encode using hamming-code
+    encode = encode_hamming_ecc(block)
+    print("Transmitting:")
+    display(encode)
 
-# simluate transmitting bits over a noisy channel
-packet = send(encode.copy(), spots=[], noise=None)
-print("Received:")
-display(packet)
+    # simluate transmitting bits over a noisy channel
+    packet = send(encode.copy(), spots=[], noise=None)
+    print("Received:")
+    display(packet)
 
-# decode using hamming-code
-(decode, valid) = decode_hamming_ecc(packet)
+    # decode using hamming-code
+    (decode, valid) = decode_hamming_ecc(packet)
 
-# continue to deframe if the message was recoverable
-if valid == 1:
-    print("Corrected:")
-    display(decode)
-    assert(encode == decode)
+    # continue to deframe if the message was recoverable
+    if valid == 1:
+        print("Corrected:")
+        display(decode)
+        assert(encode == decode)
 
-    # remove parity bits
-    rx_message = destroy_hamming_block(decode)
-    print("Receiver's Data:", rx_message)
-    assert(rx_message == tx_message)
+        # remove parity bits
+        rx_message = destroy_hamming_block(decode)
+        print("Receiver's Data:", rx_message)
+        assert(rx_message == tx_message)
 
-# if 2 errors detected, tell sender to resend the message
-else:
-    print("info: Receiver's data is corrupted (unrecoverable errors)")
+    # if 2 errors detected, tell sender to resend the message
+    else:
+        print("info: Receiver's data is corrupted (unrecoverable errors)")
+    pass
 
 
 # --- Tests --------------------------------------------------------------------

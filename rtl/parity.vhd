@@ -31,11 +31,23 @@ end entity parity;
 
 
 architecture rtl of parity is
+begin  
 
-    -- @todo: define internal signals/components
+    process(data)
+        variable check_bit_i : std_logic;
+    begin
+        -- read each bit in data and flip based on counting '1's
+        check_bit_i := data(0);
+        for ii in 1 to SIZE-1 loop
+            check_bit_i := check_bit_i xor data(ii);
+        end loop;
 
-begin
-
-    -- @todo: describe the circuit
+        -- drive output port with result
+        if EVEN_PARITY = true then 
+            check_bit <= check_bit_i;
+        else
+            check_bit <= not check_bit_i;
+        end if;
+    end process;
 
 end architecture rtl;

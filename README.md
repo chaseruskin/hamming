@@ -6,9 +6,16 @@ A generic VHDL implementation for encoding and decoding of the error-correction 
 
 ## Testing
 
-To test the software model:
+To test the hamming-code software model:
 ```
 python -m unittest discover ./sim/mdl hamming.py
+```
+
+To test the `parity` entity:
+```
+orbit plan --clean --top parity --plugin ghdl
+orbit b -- -g SIZE=9 
+orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 ```
 
 ## Reference
