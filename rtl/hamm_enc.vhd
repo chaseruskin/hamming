@@ -64,7 +64,7 @@ architecture rtl of hamm_enc is
     signal full_block  : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
 
 begin
-    --! formats the incoming message into a clean hamming-code block with parity
+    --! Formats the incoming message into a clean hamming-code block with parity
     --! bits cleared.
     process(message)
         variable ctr : natural;
@@ -131,8 +131,8 @@ begin
         end loop;
     end process;
 
-    --! compute the extra parity bit for double-error detection
-    u_sed : entity work.parity
+    --! computes the extra parity bit (0th bit) for double-error detection
+    u_ded : entity work.parity
     generic map (
         SIZE        => TOTAL_BITS_SIZE-1,
         EVEN_PARITY => EVEN_PARITY
