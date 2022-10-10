@@ -4,8 +4,14 @@
 --! Created  : 2022-10-09
 --! Entity   : decoder
 --! Details  :
---!     @todo: write general overview of component and its behavior
+--!     Generic decoder takes a binary encoding of length `SIZE` and returns a 
+--!     vector of length 2**`SIZE` with the indexed bit set to '1'.
 --!
+--!     An example is using a 2-bit encoding to output a 4-bit decoding: 
+--!         00 -> 0001, 
+--!         01 -> 0010, 
+--!         10 -> 0100, 
+--!         11 -> 1000.
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

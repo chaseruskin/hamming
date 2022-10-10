@@ -4,8 +4,8 @@
 --! Created   : 2022-10-09
 --! Testbench : decoder_tb
 --! Details   :
---!     @todo: write general overview of component and its behavior
---!
+--!     Verifies the `decoder` entity using file I/O transactions with a 
+--!     software model script 'decoder_tb.py' with built-in assertions.
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

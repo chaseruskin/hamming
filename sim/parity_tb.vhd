@@ -4,8 +4,8 @@
 --! Created   : 2022-10-07
 --! Testbench : parity_tb
 --! Details   :
---!     @todo: write general overview of component and its behavior
---!
+--!     Verifies the `parity` entity using file I/O transactions from a software
+--!     model script 'parity_tb.py' with built-in assertions.
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;

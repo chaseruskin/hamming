@@ -4,8 +4,8 @@
 --! Created   : 2022-10-09
 --! Testbench : hamm_enc_tb
 --! Details   :
---!     @todo: write general overview of component and its behavior
---!
+--!     Verifies the `hamm_enc` entity using file I/O transactions from a 
+--!     a software model script 'hamm_enc_tb.py' with built-in assertions.
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
