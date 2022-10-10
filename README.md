@@ -18,6 +18,20 @@ orbit b -- -g SIZE=9
 orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 ```
 
+To test the `decoder` entity:
+```
+orbit plan --clean --plugin ghdl --top decoder
+orbit b
+orbit b -- -g SIZE=4
+```
+
+To test the `hamm_enc` entity:
+```
+orbit plan --clean --plugin ghdl --top hamm_enc
+orbit b
+orbit b -- -g PARITY_BITS=4
+```
+
 ## Reference
 
 - "How to send a self-correcting message (Hamming codes)" - 3Blue1Brown  

@@ -4,6 +4,7 @@
 [[ip]]
 name = "crus.ecc.hamming"
 version = "0.1.0"
+source = "https://github.com/c-rus/hamming.git"
 dependencies = [
     { name = "crus.util.toolbox", version = "0.1" }
 ]

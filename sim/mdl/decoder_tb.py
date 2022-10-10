@@ -40,7 +40,7 @@ for num in range(0, 2**SIZE):
     decoding[2**SIZE-num-1] = 1
     
     # write decoding to ouputs
-    decoding = tb.vec_int_to_str(decoding)
+    decoding = tb.vec_int_to_str(decoding, big_endian=False)
     tb.write_bits(output_file,
         decoding)
     pass
