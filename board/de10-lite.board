@@ -66,14 +66,14 @@ PIN_C12 = message[3]           ; SW3 Slide Switch[3] 3.3-V LVTTL
 ; ----- LEDs -------------------------------------------------------------------
 ; NOTE: ON with high logic level, OFF with low logic level.
 ; ------------------------------------------------------------------------------
-PIN_A8  = packet[0]           ; LEDR0 LED[0] 3.3-V LVTTL
-PIN_A9  = packet[1]           ; LEDR1 LED[1] 3.3-V LVTTL
-PIN_A10 = packet[2]           ; LEDR2 LED[2] 3.3-V LVTTL
-PIN_B10 = packet[3]           ; LEDR3 LED[3] 3.3-V LVTTL
-PIN_D13 = packet[4]           ; LEDR4 LED[4] 3.3-V LVTTL
-PIN_C13 = packet[5]           ; LEDR5 LED[5] 3.3-V LVTTL
-PIN_E14 = packet[6]           ; LEDR6 LED[6] 3.3-V LVTTL
-PIN_D14 = packet[7]           ; LEDR7 LED[7] 3.3-V LVTTL
+PIN_A8  = encoding[0]           ; LEDR0 LED[0] 3.3-V LVTTL
+PIN_A9  = encoding[1]           ; LEDR1 LED[1] 3.3-V LVTTL
+PIN_A10 = encoding[2]           ; LEDR2 LED[2] 3.3-V LVTTL
+PIN_B10 = encoding[3]           ; LEDR3 LED[3] 3.3-V LVTTL
+PIN_D13 = encoding[4]           ; LEDR4 LED[4] 3.3-V LVTTL
+PIN_C13 = encoding[5]           ; LEDR5 LED[5] 3.3-V LVTTL
+PIN_E14 = encoding[6]           ; LEDR6 LED[6] 3.3-V LVTTL
+PIN_D14 = encoding[7]           ; LEDR7 LED[7] 3.3-V LVTTL
 ; PIN_A11 = __           ; LEDR8 LED[8] 3.3-V LVTTL
 ; PIN_B11 = __           ; LEDR9 LED[9] 3.3-V LVTTL
                             
