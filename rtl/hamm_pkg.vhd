@@ -16,6 +16,12 @@ package hamm_pkg is
     --! Includes values of 0 and 1.
     function is_pow_2(num: natural) return boolean;
 
+    --! Computes the number of data bits for a hamming-code block.
+    function compute_data_size(parity_bits: positive range 2 to positive'high) return positive;
+
+    --! Computes the number of bits in the entire hamming-code block.
+    function compute_block_size(parity_bits: positive range 2 to positive'high) return positive;
+
 end package hamm_pkg;
 
 
@@ -32,6 +38,16 @@ package body hamm_pkg is
             temp := temp / 2;
         end loop;
         return true;
+    end function;
+
+    function compute_data_size(parity_bits: positive range 2 to positive'high) return positive is
+    begin
+        return (2**parity_bits)-parity_bits-1;
+    end function;
+
+    function compute_block_size(parity_bits: positive range 2 to positive'high) return positive is
+    begin
+        return 2**parity_bits;
     end function;
 
 end package body;

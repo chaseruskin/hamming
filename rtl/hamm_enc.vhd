@@ -23,8 +23,8 @@ entity hamm_enc is
         PARITY_BITS : positive range 2 to positive'high 
     );
     port (
-        message  : in  std_logic_vector((2**PARITY_BITS)-PARITY_BITS-1-1 downto 0);
-        encoding : out std_logic_vector((2**PARITY_BITS)-1 downto 0)
+        message  : in  std_logic_vector(hamm_pkg.compute_data_size(PARITY_BITS)-1 downto 0);
+        encoding : out std_logic_vector(hamm_pkg.compute_block_size(PARITY_BITS)-1 downto 0)
     );
 end entity hamm_enc;
 
@@ -32,8 +32,8 @@ end entity hamm_enc;
 architecture rtl of hamm_enc is
     constant EVEN_PARITY : boolean := true;
 
-    constant DATA_BITS_SIZE   : positive := (2 ** PARITY_BITS)-PARITY_BITS-1;
-    constant TOTAL_BITS_SIZE  : positive := (2 ** PARITY_BITS);
+    constant DATA_BITS_SIZE   : positive := hamm_pkg.compute_data_size(PARITY_BITS)-1;
+    constant TOTAL_BITS_SIZE  : positive := hamm_pkg.compute_block_size(PARITY_BITS);
     constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
 
     type hamm_block is array (0 to PARITY_BITS-1) of std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
