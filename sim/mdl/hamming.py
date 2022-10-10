@@ -119,11 +119,17 @@ class HammingCode:
         Includes setting the overall parity of the block at 0th bit.
         '''
         # questions to capture redundancy for each parity bit
+        parities = []
         for i in range(0, self.get_parity_bits_len()):
+            # print('i', i)
             coverage = self._get_parity_coverage(i)
+            # print(coverage)
             data_bits = [block[j] for j in coverage]
+            # print('group', i, data_bits)
             block[2**i] = set_parity_bit(data_bits)
+            parities += [block[2**i]]
             pass
+        # print('parities', parities)
         # set overall parity for SECDED
         block[0] = set_parity_bit(block)
         return block
@@ -149,6 +155,7 @@ class HammingCode:
         block.
         '''
         block = self._create_hamming_block(message)
+        # print(block)
         return self._encode_hamming_ecc(block)
 
 

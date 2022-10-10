@@ -2,9 +2,9 @@
 # Project: crus.ecc.hamming
 # Engineer: Chase Ruskin
 # Created: 2022-10-09
-# Script: hamm_enc_tb
+# Script: decoder_tb
 # Details:
-#   Implements behavioral software model for HDL testbench hamm_enc_tb.
+#   Implements behavioral software model for HDL testbench decoder_tb.
 #
 #   Writes files to be used as input data and expected output data during the
 #   HDL simulation.
@@ -13,12 +13,8 @@
 # @note: uncomment the following lines to use custom python module for testbenches
 from toolbox import toolbox as tb
 import random
-from hamming import HammingCode
 
 # --- Constants ----------------------------------------------------------------
-
-TESTS = 100
-R_SEED = 8
 
 IN_FILE_NAME  = 'inputs.dat'
 OUT_FILE_NAME = 'outputs.dat'
@@ -28,29 +24,28 @@ OUT_FILE_NAME = 'outputs.dat'
 # collect generics from HDL testbench file and command-line
 generics = tb.get_generics()
 
-PARITY_BITS = int(generics['PARITY_BITS'])
-
-input_file = open(IN_FILE_NAME, 'w')
+input_file = open(IN_FILE_NAME, 'w') 
 output_file = open(OUT_FILE_NAME, 'w')
 
-hc = HammingCode(PARITY_BITS)
+SIZE = int(generics['SIZE'])
 
-for _ in range(0, TESTS):
-    # generate a random message
-    message = [random.randint(0, 1) for _ in range(0, hc.get_data_bits_len())]
-    # print(message)
-    # write message to inputs
-    tb.write_bits(input_file, 
-        tb.vec_int_to_str(message))
+for num in range(0, 2**SIZE):
+    encoding = tb.to_bin(num, SIZE)
+    # write encoding to inputs
+    tb.write_bits(input_file,
+        encoding)
 
-    # print(hc.get_data_bits_len())
-    # encode the message into hamming block
-    hamm_block = hc.encode(message)
-    # print(hamm_block)
-    # write block to outpus
+    decoding = [0] * (2**SIZE)
+    # set the index bit high as '1'
+    decoding[2**SIZE-num-1] = 1
+    
+    # write decoding to ouputs
+    decoding = tb.vec_int_to_str(decoding)
     tb.write_bits(output_file,
-        tb.vec_int_to_str(hamm_block))
+        decoding)
     pass
+
+
 
 # close files
 input_file.close()
