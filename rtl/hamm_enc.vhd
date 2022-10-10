@@ -27,22 +27,7 @@ end entity hamm_enc;
 
 
 architecture rtl of hamm_enc is
-    constant EVEN_PARITY : boolean := true;
-
-    constant DATA_BITS_SIZE   : positive := (2 ** PARITY_BITS)-PARITY_BITS-1;
-    constant TOTAL_BITS_SIZE  : positive := (2 ** PARITY_BITS);
-    constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
-
-    type hamm_block is array (0 to PARITY_BITS-1) of std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
-
-    signal blocks : hamm_block;
-
-    -- +1 parity for the zero-th check bit
-    signal check_bits : std_logic_vector(PARITY_BITS downto 0);
-
-    signal empty_block : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
-    signal full_block  : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
-
+    --! Determines if the `num` is a power of 2. Includes values of 0 and 1.
     function is_pow_2(num: natural) return boolean is
         variable temp: natural;
     begin
@@ -62,8 +47,25 @@ architecture rtl of hamm_enc is
         end if;
     end function;
 
-begin
+    constant EVEN_PARITY : boolean := true;
 
+    constant DATA_BITS_SIZE   : positive := (2 ** PARITY_BITS)-PARITY_BITS-1;
+    constant TOTAL_BITS_SIZE  : positive := (2 ** PARITY_BITS);
+    constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
+
+    type hamm_block is array (0 to PARITY_BITS-1) of std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
+
+    signal blocks : hamm_block;
+
+    -- +1 parity for the zero-th check bit
+    signal check_bits : std_logic_vector(PARITY_BITS-1+1 downto 0);
+
+    signal empty_block : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
+    signal full_block  : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
+
+begin
+    --! formats the incoming message into a clean hamming-code block with parity
+    --! bits cleared.
     process(message)
         variable ctr : natural;
         variable block_v : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
@@ -80,7 +82,7 @@ begin
         empty_block <= block_v;
     end process;
 
-    -- group the parities
+    --! divide the entire hamming-code block into parity subset groups
     process(empty_block)
         variable temp_line : std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
         variable index     : std_logic_vector(PARITY_BITS-1 downto 0);
@@ -101,6 +103,7 @@ begin
         end loop;
     end process;
 
+    --! instantiate parity checkers for the subset of bits to evaluate
     gen_check_bits: for ii in 0 to PARITY_BITS-1 generate
         uX : entity work.parity
         generic map (
@@ -112,6 +115,7 @@ begin
         );
     end generate gen_check_bits;
 
+    --! fill the hamming-code block with computed parity bits
     process(empty_block, check_bits)
         variable ctr : natural;
     begin
@@ -127,7 +131,7 @@ begin
         end loop;
     end process;
 
-
+    --! compute the extra parity bit for double-error detection
     u_sed : entity work.parity
     generic map (
         SIZE        => TOTAL_BITS_SIZE-1,
@@ -137,6 +141,7 @@ begin
         check_bit => check_bits(PARITY_BITS)
     );
 
+    -- drive the output with the hamming-code block and the 0th parity bit 
     encoding <= full_block(TOTAL_BITS_SIZE-1 downto 1) & check_bits(PARITY_BITS);
 
 end architecture rtl;
