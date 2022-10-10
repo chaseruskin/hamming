@@ -25,6 +25,8 @@ OUT_FILE_NAME = 'outputs.dat'
 
 # --- Logic --------------------------------------------------------------------
 
+random.seed(R_SEED)
+
 # collect generics from HDL testbench file and command-line
 generics = tb.get_generics()
 
@@ -38,15 +40,14 @@ hc = HammingCode(PARITY_BITS)
 for _ in range(0, TESTS):
     # generate a random message
     message = [random.randint(0, 1) for _ in range(0, hc.get_data_bits_len())]
-    # print(message)
+
     # write message to inputs
     tb.write_bits(input_file, 
         tb.vec_int_to_str(message))
 
-    # print(hc.get_data_bits_len())
     # encode the message into hamming block
     hamm_block = hc.encode(message)
-    # print(hamm_block)
+
     # write block to outpus
     tb.write_bits(output_file,
         tb.vec_int_to_str(hamm_block))

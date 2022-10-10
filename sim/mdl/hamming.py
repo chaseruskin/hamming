@@ -24,6 +24,7 @@
 #   
 #   "Hamming code" - Wikipedia
 #   https://en.wikipedia.org/wiki/Hamming_code#[7,4]_Hamming_code
+#
 import unittest
 from math import log
 from typing import List

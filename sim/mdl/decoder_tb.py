@@ -45,8 +45,6 @@ for num in range(0, 2**SIZE):
         decoding)
     pass
 
-
-
 # close files
 input_file.close()
 output_file.close()

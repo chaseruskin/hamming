@@ -10,7 +10,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 library work;
--- @note: uncomment the next 3 lines to use the toolbox package.
+-- @note: uncomment the next 3 lines to use the toolbox package
 library util;
 use std.textio.all;
 use util.toolbox_pkg.all;
@@ -50,20 +50,15 @@ begin
 
         variable exp_check_bit : std_logic;
     begin
-        -- @todo: drive UUT and check circuit behavior
+        -- drive UUT and check circuit behavior
         while not endfile(inputs) loop
             --! read given inputs from file
-
-            -- @note: example syntax for toolbox package
             data <= read_str_to_slv(inputs, SIZE);
 
             wait for DELAY;
             --! read expected outputs from file
-
-            -- @note: example syntax for toolbox package
             exp_check_bit := read_str_to_sl(outputs);
 
-            -- @note: example syntax for toolbox package
             assert check_bit = exp_check_bit report error_sl("check_bit", check_bit, exp_check_bit) severity failure;
         end loop;
 
