@@ -44,6 +44,190 @@ RATE = DATA_BITS/TOTAL_BITS
 
 # --- Classes and Functions ----------------------------------------------------
 
+def _binary_space(n: int) -> List[str]:
+    '''
+    Returns binary strings for the possible combinations of input from
+    0 to `n`.
+    '''
+    space = []
+    for m in range(0, n):
+        space += [format(m, '0'+str(int(log(n, 2)))+'b')]
+    return space
+
+
+def set_parity_bit(arr: List[int], use_even=True) -> bool:
+    '''
+    Checks if the `arr` has an odd amount of 0's in which case the parity bit
+    must be set to '1' to achieve an even parity.
+
+    If `use_even` is set to `False`, then odd parity will be computed and will
+    seek to achieve an odd amount of '1's (including parity bit).
+    '''
+    # count the number of 1's in the list
+    return (arr.count(1) % 2) ^ (use_even == False)
+
+
+class HammingCode:
+
+    def __init__(self, parity_bits: int):
+        self.parity_bits = parity_bits
+
+
+    def get_total_bits_len(self) -> int:
+        return 2**self.get_parity_bits_len()
+
+
+    def get_parity_bits_len(self) -> int:
+        return self.parity_bits
+
+
+    def get_data_bits_len(self) -> int:
+        return 2**self.get_parity_bits_len()-self.get_parity_bits_len()-1
+
+
+    def _get_parity_coverage(self, i: int) -> List[int]:
+        '''
+        Returns the list of indices covered by the i-th parity bit.
+        '''
+        space = _binary_space(self.get_total_bits_len())
+        subset = []
+        # check the i-th bit positions
+        for s in space:
+            if s[self.get_parity_bits_len()-i-1] == '1':
+                subset += [s]
+        # convert from binary to decimal for target indices
+        return [int('0b'+x, base=2) for x in subset]
+        
+
+    def _create_hamming_block(self, chunk: List[int]) -> List[int]:
+        '''
+        Inserts parity bits at the corresponding power-of-2 indices.
+
+        Frames the data with the parity bits.
+        '''
+        # position 0 along with other powers of 2 are reserved for parity data
+        chunk.insert(0, 0)
+        for i in range(0, self.get_parity_bits_len()):
+            chunk.insert(2**i, 0)
+        return chunk
+
+
+    def _encode_hamming_ecc(self, block: List[int]) -> List[int]:
+        '''
+        Sets the parity bits for the Hamming-code block.
+
+        Includes setting the overall parity of the block at 0th bit.
+        '''
+        # questions to capture redundancy for each parity bit
+        for i in range(0, self.get_parity_bits_len()):
+            coverage = self._get_parity_coverage(i)
+            data_bits = [block[j] for j in coverage]
+            block[2**i] = set_parity_bit(data_bits)
+            pass
+        # set overall parity for SECDED
+        block[0] = set_parity_bit(block)
+        return block
+
+
+    def _get_parity_coverage(self, i: int) -> List[int]:
+        '''
+        Returns the list of indices covered by the i-th parity bit.
+        '''
+        space = _binary_space(self.get_total_bits_len())
+        subset = []
+        # check the i-th bit positions
+        for s in space:
+            if s[self.get_parity_bits_len()-i-1] == '1':
+                subset += [s]
+        # convert from binary to decimal for target indices
+        return [int('0b'+x, base=2) for x in subset]
+
+
+    def encode(self, message: List[int]) -> List[int]:
+        '''
+        Transforms and formats a plain `message` into an encoded hamming-code
+        block.
+        '''
+        block = self._create_hamming_block(message)
+        return self._encode_hamming_ecc(block)
+
+
+    def _destroy_hamming_block(self, chunk: List[int]) -> List[int]:
+        '''
+        Pops parity bits at the corresponding power-of-2 indices, revealing
+        the data.
+
+        Deframes the parity bits from the data.
+        '''
+        # remove parity bits
+        for i in range(self.get_parity_bits_len()-1, -1, -1):
+            chunk.pop(2**i)
+        chunk.pop(0)
+        return chunk
+
+
+    def decode_hamming_ecc(self, block: List[int]) -> Tuple[List[int], bool]:
+        '''
+        Decodes the hamming-code. 
+        
+        Corrects single-bit errors and detects double-bit errors. 
+        
+        Returns the fixed block and the valid signal.
+        '''
+        # answer the question for each parity bit
+        answer = ''
+        # block parity
+        par_block = set_parity_bit(block)
+        # questions to capture redundancy for each parity bit
+        for i in range(self.get_parity_bits_len()-1, -1, -1):
+            coverage = self._get_parity_coverage(i)
+            data_bits = [block[j] for j in coverage]
+            parity = set_parity_bit(data_bits)
+            if parity == 0:
+                # rule out the space
+                answer += '0'
+            else:
+                # include this space
+                answer += '1'
+            pass
+
+        # determine if there are unrecoverable errors or zero errors
+        if par_block == 0:
+            # check if two errors were detected
+            if answer.count('1') > 0:
+                print("info: Detected a double-bit error (unrecoverable)")
+                return (block, False)
+            # check if there were zero errors
+            else:
+                print("info: 0 errors detected")
+                return (block, True)
+
+        # otherwise, use the parity bits to pinpoint location of error to correct
+        i = int('0b'+answer, base=2)
+        print("info: Error index:", i, "("+answer+")")
+
+        # fix block at the pinpointed error index according to parity bits
+        block[i] ^= 1
+        return (block, True)
+    pass
+
+
+def total_bits(parities: int) -> int:
+    '''
+    Computes the number of total bits in the encoded hamming block.
+    '''
+    return 2**parities
+
+
+def data_bits(parities: int) -> int:
+    '''
+    Computes tehe number of information bits in the encoded hamming block.
+    
+    Assumes the 0th bit is used for an additional parity bit.
+    '''
+    return 2**parities-parities-1
+
+
 def display(block: List[int], width=None, end='\n'):
     '''
     Formats the Hamming-code block in a square arrangement.
@@ -60,132 +244,6 @@ def display(block: List[int], width=None, end='\n'):
         i += 1
     print(end=end)
     pass
-
-
-def set_parity_bit(arr: List[int], use_even=True) -> bool:
-    '''
-    Checks if the `arr` has an odd amount of 0's in which case the parity bit
-    must be set to '1' to achieve an even parity.
-
-    If `use_even` is set to `False`, then odd parity will be computed and will
-    seek to achieve an odd amount of '1's (including parity bit).
-    '''
-    # count the number of 1's in the list
-    return (arr.count(1) % 2) ^ (use_even == False)
-
-
-def _binary_space(n: int) -> List[str]:
-    '''
-    Returns binary strings for the possible combinations of input from
-    0 to `n`.
-    '''
-    space = []
-    for m in range(0, n):
-        space += [format(m, '0'+str(int(log(n, 2)))+'b')]
-    return space
-
-
-def _get_parity_coverage(i: int) -> List[int]:
-    '''
-    Returns the list of indices covered by the i-th parity bit.
-    '''
-    space = _binary_space(TOTAL_BITS)
-    subset = []
-    # check the i-th bit positions
-    for s in space:
-        if s[PARITY_BITS-i-1] == '1':
-            subset += [s]
-    # convert from binary to decimal for target indices
-    return [int('0b'+x, base=2) for x in subset]
-    
-
-def encode_hamming_ecc(block: List[int]) -> List[int]:
-    '''
-    Sets the parity bits for the Hamming-code block.
-
-    Includes setting the overall parity of the block at 0th bit.
-    '''
-    # questions to capture redundancy for each parity bit
-    for i in range(0, PARITY_BITS):
-        coverage = _get_parity_coverage(i)
-        data_bits = [block[j] for j in coverage]
-        block[2**i] = set_parity_bit(data_bits)
-        pass
-    # set overall parity for SECDED
-    block[0] = set_parity_bit(block)
-    return block
-
-
-def decode_hamming_ecc(block: List[int]) -> Tuple[List[int], bool]:
-    '''
-    Decodes the hamming-code. 
-    
-    Corrects single-bit errors and detects double-bit errors. 
-    
-    Returns the fixed block and the valid signal.
-    '''
-    # answer the question for each parity bit
-    answer = ''
-    # block parity
-    par_block = set_parity_bit(block)
-    # questions to capture redundancy for each parity bit
-    for i in range(PARITY_BITS-1, -1, -1):
-        coverage = _get_parity_coverage(i)
-        data_bits = [block[j] for j in coverage]
-        parity = set_parity_bit(data_bits)
-        if parity == 0:
-            # rule out the space
-            answer += '0'
-        else:
-            # include this space
-            answer += '1'
-        pass
-
-    # determine if there are unrecoverable errors or zero errors
-    if par_block == 0:
-        # check if two errors were detected
-        if answer.count('1') > 0:
-            print("info: Detected a double-bit error (unrecoverable)")
-            return (block, False)
-        # check if there were zero errors
-        else:
-            print("info: 0 errors detected")
-            return (block, True)
-
-    # otherwise, use the parity bits to pinpoint location of error to correct
-    i = int('0b'+answer, base=2)
-    print("info: Error index:", i, "("+answer+")")
-
-    # fix block at the pinpointed error index according to parity bits
-    block[i] ^= 1
-    return (block, True)
-
-
-def create_hamming_block(chunk: List[int]) -> List[int]:
-    '''
-    Inserts parity bits at the corresponding power-of-2 indices.
-
-    Frames the data with the parity bits.
-    '''
-    # position 0 along with other powers of 2 are reserved for parity data
-    chunk.insert(0, 0)
-    for i in range(0, PARITY_BITS):
-        chunk.insert(2**i, 0)
-    return chunk
-
-
-def destroy_hamming_block(chunk: List[int]) -> List[int]:
-    '''
-    Pops parity bits at the corresponding power-of-2 indices, revealing
-    the data.
-
-    Deframes the parity bits from the data.
-    '''
-    # remove parity bits
-    for i in range(WIDTH-1, -1, -1):
-        chunk.pop(2**i)
-    chunk.pop(0)
-    return chunk
 
 
 def partition(msg: List[int]) -> List[List[int]]:
@@ -261,18 +319,20 @@ if __name__ == '__main__':
     # generate random message bits
     message = [random.randint(0, 1) for _ in range(0, DATA_BITS)]
 
+    ham = HammingCode(PARITY_BITS)
+
     # divide message into 11-bit chunks
     chunk = partition(message)
     tx_message = chunk[0]
     print("Sender's Data:", tx_message)
 
     # reserve locations for parity bits
-    block = create_hamming_block(tx_message.copy())
+    block = ham._create_hamming_block(tx_message.copy())
     print("Formatted hamming-code block:")
     display(block)
 
     # encode using hamming-code
-    encode = encode_hamming_ecc(block)
+    encode = ham._encode_hamming_ecc(block)
     print("Transmitting:")
     display(encode)
 
@@ -282,7 +342,7 @@ if __name__ == '__main__':
     display(packet)
 
     # decode using hamming-code
-    (decode, valid) = decode_hamming_ecc(packet)
+    (decode, valid) = ham.decode_hamming_ecc(packet)
 
     # continue to deframe if the message was recoverable
     if valid == 1:
@@ -291,7 +351,7 @@ if __name__ == '__main__':
         assert(encode == decode)
 
         # remove parity bits
-        rx_message = destroy_hamming_block(decode)
+        rx_message = ham._destroy_hamming_block(decode)
         print("Receiver's Data:", rx_message)
         assert(rx_message == tx_message)
 
