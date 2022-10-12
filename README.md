@@ -4,7 +4,7 @@
 
 A generic VHDL implementation for encoding and decoding of the error-correction hamming code.
 
-The implementation uses the "extended" hamming-code, where the 0th bit is an additional parity check against the entire data block for double-error detection (DED). 
+The implementation uses the "extended" hamming-code, where the 0th bit is an additional parity check against the entire data block for double-error detection (DED). The hardware is described in strictly _combinational logic_.
 
 A single erroneous bit can be corrected for each hamming-code block (SEC). Any block received with an even number of errors `e` with `e` > 0 will not be valid. A block received with an odd number of errors `e` with `e` > 1 may self-correct to the incorrect original message.
 
@@ -20,6 +20,13 @@ A single erroneous bit can be corrected for each hamming-code block (SEC). Any b
 
 > __Note:__ `PARITY_BITS` does not account for the 0th extended parity bit. It is implicitly added to the block size.
 
+## Organization
+
+- `board/`: pin assignments for FPGA devices
+- `docs/`: references, notes, and specifications
+- `rtl/`: synthesizable HDL code
+- `sim/`: simulation code
+
 ## Testing
 
 To test the hamming-code software model:
@@ -29,7 +36,7 @@ python -m unittest discover ./sim/mdl hamming.py
 
 To test the `parity` entity:
 ```
-orbit plan --clean --top parity --plugin ghdl
+orbit plan --clean --plugin ghdl --top parity 
 orbit b -- -g SIZE=9 
 orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 ```

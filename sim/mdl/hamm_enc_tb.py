@@ -48,7 +48,7 @@ for _ in range(0, TESTS):
     # encode the message into hamming block
     hamm_block = hc.encode(message)
 
-    # write block to outpus
+    # write block to outputs
     tb.write_bits(output_file,
         tb.vec_int_to_str(hamm_block))
     pass
