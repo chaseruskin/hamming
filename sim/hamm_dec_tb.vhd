@@ -29,7 +29,7 @@ architecture sim of hamm_dec_tb is
     constant BLOCK_SIZE : positive := hamm_pkg.compute_block_size(PARITY_BITS);
 
     --! unit-under-test (UUT) interface wires
-    signal encoding  : std_logic_vector(BLOCK_SIZE-1 downto 0);
+    signal encoding  : std_logic_vector(BLOCK_SIZE-1 downto 0) := (others => '0');
     signal message   : std_logic_vector(DATA_SIZE-1 downto 0);
     signal corrected : std_logic;
     signal valid     : std_logic;

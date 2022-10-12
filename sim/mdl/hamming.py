@@ -214,16 +214,16 @@ class HammingCode:
         if par_block == 0:
             # check if two errors were detected
             if answer.count('1') > 0:
-                print("info: Detected a double-bit error (unrecoverable)")
+                # print("info: Detected a double-bit error (unrecoverable)")
                 return (block, False, False)
             # check if there were zero errors
             else:
-                print("info: 0 errors detected")
+                # print("info: 0 errors detected")
                 return (block, False, True)
 
         # otherwise, use the parity bits to pinpoint location of error to correct
         i = int('0b'+answer, base=2)
-        print("info: Error index:", i, "("+answer+")")
+        # print("info: Error index:", i, "("+answer+")")
 
         # fix block at the pinpointed error index according to parity bits
         block[i] ^= 1

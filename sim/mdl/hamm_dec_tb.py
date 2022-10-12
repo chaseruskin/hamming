@@ -19,7 +19,7 @@ from toolbox import toolbox as tb
 
 # --- Constants ----------------------------------------------------------------
 
-TESTS = 1
+TESTS = 100
 R_SEED = 9
 
 IN_FILE_NAME  = 'inputs.dat'
@@ -44,7 +44,7 @@ for _ in range(0, TESTS):
     # encode the random message
     encoding = hc.encode(message)
     # transmit the encoded message
-    packet = hamming.send(encoding, noise=1, spots=[])
+    packet = hamming.send(encoding, noise=random.randint(0, 4), spots=[])
     # write packet to input file
     tb.write_bits(input_file,
         tb.vec_int_to_str(packet)
@@ -53,9 +53,9 @@ for _ in range(0, TESTS):
     decoding, corrected, valid = hc.decode(packet)
     # write the outputs to file
     tb.write_bits(output_file,
-        decoding,
-        corrected,
-        valid)
+        tb.vec_int_to_str(decoding),
+        int(corrected),
+        int(valid))
     pass
 
 # close files

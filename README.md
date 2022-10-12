@@ -32,6 +32,14 @@ orbit b
 orbit b -- -g PARITY_BITS=4
 ```
 
+To test the `hamm_dec` entity:
+```
+orbit plan --clean --plugin ghdl --top hamm_dec
+orbit b
+orbit b -- -g PARITY_BITS=6
+orbit b -- -g PARITY_BITS=2
+```
+
 ## Reference
 
 - "How to send a self-correcting message (Hamming codes)" - 3Blue1Brown  
