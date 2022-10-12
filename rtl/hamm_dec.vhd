@@ -49,7 +49,7 @@ architecture rtl of hamm_dec is
 
     -- flag for detecting an error in the entire hamming-code block
     signal err_detected : std_logic;
-    -- address pinpointing the errorneous bit in the hamming-code block
+    -- address pinpointing the erroneous bit in the hamming-code block
     signal err_address  : std_logic_vector(PARITY_BITS-1 downto 0);
 
     -- the encoding after any bit manipulation/correction
