@@ -14,6 +14,8 @@
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
+library work;
+use work.hamm_pkg;
 
 entity hamm_dec is 
     generic (
@@ -21,8 +23,8 @@ entity hamm_dec is
         PARITY_BITS : positive range 2 to positive'high 
     );
     port (
-        encoding  : in std_logic_vector((2**PARITY_BITS)-1 downto 0);
-        message   : out std_logic_vector((2**PARITY_BITS)-PARITY_BITS-1-1 downto 0);
+        encoding  : in  std_logic_vector(hamm_pkg.compute_block_size(PARITY_BITS)-1 downto 0);
+        message   : out std_logic_vector(hamm_pkg.compute_data_size(PARITY_BITS)-1 downto 0);
         --! communicate single-error correction (SEC)
         corrected : out std_logic;
         --! communicate double-error detection (DED)
