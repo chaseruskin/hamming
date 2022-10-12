@@ -9,10 +9,12 @@
 --------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
+library work;
+use work.hamm_pkg;
 -- @note: uncomment the next 3 lines to use the toolbox package.
--- library util;
--- use util.toolbox_pkg.all;
--- use std.textio.all;
+library util;
+use util.toolbox_pkg.all;
+use std.textio.all;
 
 entity hamm_dec_tb is 
     generic (
@@ -23,9 +25,12 @@ end entity hamm_dec_tb;
 
 
 architecture sim of hamm_dec_tb is
+    constant DATA_SIZE  : positive := hamm_pkg.compute_data_size(PARITY_BITS);
+    constant BLOCK_SIZE : positive := hamm_pkg.compute_block_size(PARITY_BITS);
+
     --! unit-under-test (UUT) interface wires
-    signal encoding  : std_logic_vector((2 ** PARITY_BITS)-1 downto 0);
-    signal message   : std_logic_vector((2 ** PARITY_BITS)-PARITY_BITS-1-1 downto 0);
+    signal encoding  : std_logic_vector(BLOCK_SIZE-1 downto 0);
+    signal message   : std_logic_vector(DATA_SIZE-1 downto 0);
     signal corrected : std_logic;
     signal valid     : std_logic;
 
@@ -47,23 +52,28 @@ begin
     bench: process
         file inputs  : text open read_mode is "inputs.dat";
         file outputs : text open read_mode is "outputs.dat";
-        --! @todo: define variables for checking output ports
+        --! define variables for checking output ports
+        variable corrected_e : std_logic;
+        variable valid_e     : std_logic;
+        variable message_e   : std_logic_vector(DATA_SIZE-1 downto 0);
     begin
         -- @todo: drive UUT and check circuit behavior
         while not endfile(inputs) loop
             --! read given inputs from file
 
             -- @note: example syntax for toolbox package
-            -- <signal> <= read_str_to_slv(inputs, <width>);
+            encoding <= read_str_to_slv(inputs, BLOCK_SIZE);
 
             wait for DELAY;
             --! read expected outputs from file
+            message_e := read_str_to_slv(outputs, DATA_SIZE);
+            corrected_e := read_str_to_sl(outputs);
+            valid_e := read_str_to_sl(outputs);
 
-            -- @note: example syntax for toolbox package
-            -- <signal> := read_str_to_slv(outputs, <width>);
-
-            -- @note: example syntax for toolbox package
-            -- assert <received> = <expected> report error_slv("<message>", <received>, <expected>) severity failure;
+            --! assert received outputs match expected outputs
+            assert message = message_e report error_slv("message", message, message_e) severity failure;
+            assert corrected = corrected_e report error_sl("corrected", corrected, corrected_e) severity failure;
+            assert valid = valid_e report error_sl("valid", valid, valid_e) severity failure;
         end loop;
 
         -- halt the simulation

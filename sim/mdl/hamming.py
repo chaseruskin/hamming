@@ -174,7 +174,18 @@ class HammingCode:
         return chunk
 
 
-    def decode_hamming_ecc(self, block: List[int]) -> Tuple[List[int], bool]:
+    def decode(self, block: List[int]) -> Tuple[List[int], bool, bool]:
+        '''
+        Transforms and formats an encoded hamming-code `block` into a decoded 
+        message.
+
+        Returns `(message, corrected, valid)`.
+        '''
+        (block, corrected, valid) = self._decode_hamming_ecc(block)
+        return (self._destroy_hamming_block(block), corrected, valid)
+
+
+    def _decode_hamming_ecc(self, block: List[int]) -> Tuple[List[int], bool, bool]:
         '''
         Decodes the hamming-code. 
         
@@ -204,11 +215,11 @@ class HammingCode:
             # check if two errors were detected
             if answer.count('1') > 0:
                 print("info: Detected a double-bit error (unrecoverable)")
-                return (block, False)
+                return (block, False, False)
             # check if there were zero errors
             else:
                 print("info: 0 errors detected")
-                return (block, True)
+                return (block, False, True)
 
         # otherwise, use the parity bits to pinpoint location of error to correct
         i = int('0b'+answer, base=2)
@@ -216,7 +227,7 @@ class HammingCode:
 
         # fix block at the pinpointed error index according to parity bits
         block[i] ^= 1
-        return (block, True)
+        return (block, True, True)
     pass
 
 
