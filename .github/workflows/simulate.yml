@@ -1,0 +1,12 @@
+name: simulate
+on: push
+
+jobs:
+  orbit-docker:
+    runs-on: ubuntu-18.04
+    container:
+      image: crus800/orbit
+    steps:
+      - name: Log orbit version
+        run: |
+          orbit --version  
