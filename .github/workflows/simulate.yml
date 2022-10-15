@@ -5,71 +5,49 @@ jobs:
   orbit-docker:
     runs-on: ubuntu-18.04
     container:
-      image: crus800/orbit
+      image: crus800/orbit-fpga
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
+
+      - name: Log all tool versions
+        run: |
+          orbit --version  
+          export PATH="$PATH:/opt/intelFPGA_lite/19.1/quartus/bin"
+          quartus_sh --version
+          python --version
+          ghdl --version
 
       - name: Configure orbit profile
         run: |
           git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profile/c-rus"
           orbit config --append include="profile/c-rus/config.toml"
 
-      # - name: Link toolbox python package
-      #   run: |
-      #     pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
+      - name: Link toolbox python package
+        run: |
+          pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
 
       - name: Simulate parity entity
         run: |
           orbit plan --clean --plugin ghdl --top parity
+          orbit b -- -g SIZE=9 
+          orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 
-# jobs:
-#   orbit-docker:
-#     runs-on: ubuntu-18.04
-#     container:
-#       image: crus800/orbit-fpga
-#     steps:
-#       - name: Fetch repository
-#         uses: actions/checkout@v3
+      - name: Simulate decoder entity
+        run: |
+          orbit plan --clean --plugin ghdl --top decoder
+          orbit b
+          orbit b -- -g SIZE=4
 
-#       - name: Log all tool versions
-#         run: |
-#           orbit --version  
-#           export PATH="$PATH:/opt/intelFPGA_lite/19.1/quartus/bin"
-#           quartus_sh --version
-#           python --version
-#           ghdl --version
+      - name: Simulate hamm_enc entity
+        run: |
+          orbit plan --clean --plugin ghdl --top hamm_enc
+          orbit b
+          orbit b -- -g PARITY_BITS=4
 
-#       - name: Configure orbit profile
-#         run: |
-#           git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profile/c-rus"
-#           orbit config --append include="profile/c-rus/config.toml"
-
-#       - name: Link toolbox python package
-#         run: |
-#           pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
-
-#       - name: Simulate parity entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top parity
-#           orbit b -- -g SIZE=9 
-#           orbit b -- -g SIZE=4 -g EVEN_PARITY=false
-
-#       - name: Simulate decoder entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top decoder
-#           orbit b
-#           orbit b -- -g SIZE=4
-
-#       - name: Simulate hamm_enc entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top hamm_enc
-#           orbit b
-#           orbit b -- -g PARITY_BITS=4
-
-#       - name: Simulate hamm_dec entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top hamm_dec
-#           orbit b
-#           orbit b -- -g PARITY_BITS=6
-#           orbit b -- -g PARITY_BITS=2
+      - name: Simulate hamm_dec entity
+        run: |
+          orbit plan --clean --plugin ghdl --top hamm_dec
+          orbit b
+          orbit b -- -g PARITY_BITS=6
+          orbit b -- -g PARITY_BITS=2
