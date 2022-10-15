@@ -9,10 +9,11 @@ jobs:
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
-        
+
       - name: Log all tool versions
         run: |
           orbit --version  
+          export PATH="$PATH:/opt/intelFPGA_lite/19.1/quartus/bin"
           quartus_sh --version
           python --version
           ghdl --version
