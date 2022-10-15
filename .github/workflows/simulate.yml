@@ -15,9 +15,9 @@ jobs:
           git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profile/c-rus"
           orbit config --append include="profile/c-rus/config.toml"
 
-      - name: Link toolbox python package
-        run: |
-          pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
+      # - name: Link toolbox python package
+      #   run: |
+      #     pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
 
       - name: Simulate parity entity
         run: |
