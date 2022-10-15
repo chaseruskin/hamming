@@ -22,8 +22,6 @@ jobs:
       - name: Simulate parity entity
         run: |
           orbit plan --clean --plugin ghdl --top parity
-          orbit b -- -g SIZE=9 
-          orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 
 # jobs:
 #   orbit-docker:
