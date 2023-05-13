@@ -3,7 +3,7 @@ on: push
 
 jobs:
   orbit-docker:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
       image: crus800/orbit-fpga
     steps:
