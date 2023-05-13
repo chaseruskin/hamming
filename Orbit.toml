@@ -2,11 +2,9 @@
 name    = "hamming"
 library = "ecc"
 version = "0.1.0"
-vendor  = "crus"
-summary = "Hamming-code SECDED implementation"
-repository = "https://github.com/c-rus/hamming.git"
+summary = "Hamming-code SECDED implementation."
 
 # To learn more about writing the manifest, see https://c-rus.github.io/orbit/4_topic/2_orbittoml.html
 
 [dependencies]
-crus.util.toolbox = "0.1"
+toolbox = "1.0.0"
