@@ -24,10 +24,6 @@ jobs:
       - name: Link toolbox python package
         run: |
           pip install -e "$(orbit env ORBIT_HOME)/profile/c-rus/toolbox"
-
-      - name: Download dependencies
-        run: |
-          orbit download --missing
           
       - name: Simulate parity entity
         run: |
