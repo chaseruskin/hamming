@@ -2,15 +2,12 @@
 
 [[ip]]
 name = "hamming"
-version = "0.1.0"
-sum = "056c0b2b8d491871f544fc60d9671d0cc1af6abc9cc32eda90c6ec49e7e69bf0"
-dependencies = ["toolbox=1.0.0"]
+version = "1.0.0"
+dependencies = ["toolbox:1.0.0"]
 
 [[ip]]
 name = "toolbox"
 version = "1.0.0"
 sum = "09c5d305209367aa4622e693e8fa739a180848f01dc23b8d03d9eb9d12d8c92f"
-dependencies = []
-
-[ip.source]
 url = "https://github.com/c-rus/toolbox/archive/refs/tags/1.0.0.zip"
+dependencies = []
