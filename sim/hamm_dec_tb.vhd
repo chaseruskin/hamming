@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---! Project   : crus.ecc.hamming
+--! Project   : Hamming
 --! Engineer  : Chase Ruskin
 --! Created   : 2022-10-10
 --! Testbench : hamm_dec_tb
@@ -12,8 +12,8 @@ use ieee.std_logic_1164.all;
 library work;
 use work.hamm_pkg;
 -- @note: uncomment the next 3 lines to use the toolbox package.
-library util;
-use util.toolbox_pkg.all;
+library core;
+use core.testkit.all;
 use std.textio.all;
 
 entity hamm_dec_tb is 

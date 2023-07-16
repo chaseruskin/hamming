@@ -1,11 +1,12 @@
 [ip]
 name    = "hamming"
-version = "1.0.0"
+version = "1.0.1"
 library = "ecc"
 summary = "Hamming-code SECDED implementation."
 keywords = ["ecc", "code"]
 
-# To learn more about writing the manifest, see https://c-rus.github.io/orbit/4_topic/2_orbittoml.html
+# To learn more about writing the manifest, see https://c-rus.github.io/orbit/reference/manifest.html
+[dependencies]
 
 [dev-dependencies]
-toolbox = "1.0.0"
+testkit = "1.0.3"

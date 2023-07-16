@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Project: crus.ecc.hamming
+# Project: Hamming
 # Engineer: Chase Ruskin
 # Created: 2022-10-11
 # Script: hamm_dec_tb

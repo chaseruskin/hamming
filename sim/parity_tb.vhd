@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
---! Project   : crus.ecc.hamming
+--! Project   : Hamming
 --! Engineer  : Chase Ruskin
 --! Created   : 2022-10-07
 --! Testbench : parity_tb
@@ -11,9 +11,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 library work;
 -- @note: uncomment the next 3 lines to use the toolbox package
-library util;
+library core;
 use std.textio.all;
-use util.toolbox_pkg.all;
+use core.testkit.all;
 
 entity parity_tb is 
     generic (
