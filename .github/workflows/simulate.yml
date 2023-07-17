@@ -5,7 +5,7 @@ jobs:
   orbit-docker:
     runs-on: ubuntu-latest
     container:
-      image: crus800/orbit-simulate
+      image: crus800/orbit-simulation
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
