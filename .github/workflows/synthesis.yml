@@ -1,0 +1,27 @@
+name: synthesis
+on: push
+
+jobs:
+  orbit-docker:
+    runs-on: ubuntu-latest
+    container:
+      image: crus800/orbit-fpga
+    steps:
+      - name: Fetch repository
+        uses: actions/checkout@v3
+
+      - name: Log all tool versions
+        run: |
+          orbit --version  
+          python --version
+          quartus_sh --version
+
+      - name: Configure orbit profile
+        run: |
+          git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profiles/c-rus"
+          orbit config --append include="profiles/c-rus/config.toml"
+
+      - name: Synthesize encoder
+        run |
+          orbit plan --clean --plugin quartus --top hamm_enc
+          orbit b -- -g PARITY_BITS=3
