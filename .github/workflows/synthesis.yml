@@ -22,6 +22,6 @@ jobs:
           orbit config --append include="profiles/c-rus/config.toml"
 
       - name: Synthesize encoder
-        run |
+        run: |
           orbit plan --clean --plugin quartus --top hamm_enc
           orbit b -- -g PARITY_BITS=3
