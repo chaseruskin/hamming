@@ -9,4 +9,4 @@ keywords = ["ecc", "code"]
 [dependencies]
 
 [dev-dependencies]
-testkit = "1.0.3"
+testkit = "1.0.4"

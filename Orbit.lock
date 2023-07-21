@@ -5,12 +5,12 @@ version = 1
 name = "hamming"
 version = "1.0.1"
 uuid = "3d41b8d2-d347-4a25-9c21-2b101221f93d"
-dependencies = ["testkit:1.0.3"]
+dependencies = ["testkit:1.0.4"]
 
 [[ip]]
 name = "testkit"
-version = "1.0.3"
-uuid = "d142edda-8e02-4f04-89e9-44a40897890a"
-checksum = "a598a36182eec38f229e73c8b1dbf3813f285b4720f85a7140faf9e8a2506084"
-url = "https://github.com/c-rus/toolbox/archive/refs/tags/1.0.3.zip"
+version = "1.0.4"
+uuid = "9be07cfb-82b7-4dca-b8f0-3847d5234c4b"
+checksum = "7f4d8c7812779801b26b60329f71fd014dc1be73b7f838d921bad226e6b3f6ae"
+url = "https://github.com/c-rus/toolbox/archive/refs/tags/1.0.4.zip"
 dependencies = []

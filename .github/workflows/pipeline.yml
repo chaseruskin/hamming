@@ -1,11 +1,11 @@
-name: simulate
+name: pipeline
 on: push
 
 jobs:
-  orbit-docker:
+  simulate:
     runs-on: ubuntu-latest
     container:
-      image: crus800/orbit-simulation
+      image: crus800/fpga-simulation
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
@@ -29,8 +29,8 @@ jobs:
         run: |
           orbit plan --clean --plugin ghdl --top parity
           cat ./build/blueprint.tsv
-# orbit b -- -g SIZE=9 
-# orbit b -- -g SIZE=4 -g EVEN_PARITY=false
+          orbit b -- -g SIZE=9 -g EVEN_PARITY=true
+          orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 
       - name: Simulate decoder entity
         run: |
@@ -53,3 +53,38 @@ jobs:
 # orbit b
 # orbit b -- -g PARITY_BITS=6
 # orbit b -- -g PARITY_BITS=2
+
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: crus800/fpga-toolchain
+    steps:
+      - name: Fetch repository
+        uses: actions/checkout@v3
+
+      - name: Log all tool versions
+        run: |
+          orbit --version  
+          python --version
+          quartus_sh --version
+
+      - name: Configure orbit profile
+        run: |
+          git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profiles/c-rus"
+          orbit config --append include="profiles/c-rus/config.toml"
+          pip install toml
+
+      - name: Perfrom entire tooflow for encoder
+        run: |
+          orbit plan --clean --plugin quartus --top hamm_enc 
+          orbit b -- -g PARITY_BITS=3 --bit
+
+      - name: Save reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-reports
+          path: |
+            build/quartus/*.summary
+            build/quartus/*.rpt
+            build/quartus/*.sof
+            build/quartus/*.pof

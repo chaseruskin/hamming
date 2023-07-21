@@ -10,59 +10,59 @@
 #   HDL simulation.
 # ------------------------------------------------------------------------------
 
-# @note: uncomment the following line to use custom python module for testbenches
-from toolbox import toolbox as tb
+import verity as vy
+from verity.coverage import Coverage, Covergroup, Coverpoint
+from verity.model import SuperBfm, Signal, Mode, InputFile, OutputFile
 import random
 import hamming
 
 # --- Constants ----------------------------------------------------------------
 
-TESTS = 100
-R_SEED = 8
+# define the randomness seed
+R_SEED = vy.get_seed(0)
 
-IN_FILE_NAME  = 'inputs.dat'
-OUT_FILE_NAME = 'outputs.dat'
+# collect generics from command-line and HDL testbench
+GENS = vy.get_generics()
+
+WIDTH = vy.from_vhdl_int(GENS['SIZE'])
+EVEN_PARITY = vy.from_vhdl_bool(GENS['EVEN_PARITY'])
+
+MAX_SIMS = 10_000
+
+# define the bus functional model
+class Bfm(SuperBfm):
+    entity = 'parity'
+
+    def __init__(self):
+        self.data = Signal(Mode.INPUT, WIDTH)
+
+        self.check_bit = Signal(Mode.OUTPUT)
+        pass
+
+
+    def model(self, *args):
+        self.check_bit.set(0)
+        # cast into a `List[int]` type
+        vec = [int(x) for x in self.data.as_logic()]
+        if hamming.set_parity_bit(vec, use_even=EVEN_PARITY) == True:
+            self.check_bit.set(1)
+        return self
+    pass
 
 # --- Logic --------------------------------------------------------------------
 
+vy.parse_args(bfm=Bfm())
+
 random.seed(R_SEED)
 
-# collect generics from HDL testbench file and command-line
-generics = tb.get_generics()
+# create empty test vector files
+i_file = InputFile()
+o_file = OutputFile()
 
-SIZE = int(generics['SIZE'])
-EVEN_PARITY  = tb.interp_vhdl_bool(generics['EVEN_PARITY'])
-
-input_file = open(IN_FILE_NAME, 'w')
-output_file = open(OUT_FILE_NAME, 'w')
-
-# track distribution of even and odd numbers
-odd_ctr = 0
-even_ctr = 0
-for _ in range(0, TESTS):
-    # generate random data
-    message = random.randint(0, (2**SIZE)-1)
-    # recompute message if already fair amount of odd and even numbers
-    while (message % 2 == 0 and even_ctr >= TESTS/2) or (message % 2 == 1 and odd_ctr >= TESTS/2):
-        message = random.randint(0, (2**SIZE)-1)
-    if message % 2 == 0:
-        even_ctr += 1
-    else:
-        odd_ctr += 1
-
-    bits = tb.to_bin(message, SIZE)
-    # write input data
-    tb.write_bits(input_file, 
-        bits)
-
-    bits = [int(b) for b in list(bits)]
-    # compute parity bit
-    check_bit = hamming.set_parity_bit(list(bits), use_even=EVEN_PARITY)
-    # write expected output data
-    tb.write_bits(output_file,
-        check_bit)
+# generate test cases until total coverage is met or we reached max count
+for _ in range(0, MAX_SIMS):
+    # create a new input to enter through the algorithm
+    txn = Bfm().rand()
+    i_file.write(txn)
+    o_file.write(txn.model())
     pass
-
-# close files
-input_file.close()
-output_file.close()
