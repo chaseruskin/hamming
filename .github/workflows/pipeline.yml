@@ -74,7 +74,7 @@ jobs:
           orbit config --append include="profiles/c-rus/config.toml"
           pip install toml
 
-      - name: Perfrom entire tooflow for encoder
+      - name: Generate bitstream for encoder
         run: |
           orbit plan --clean --plugin quartus --top hamm_enc 
           orbit b -- -g PARITY_BITS=3 --bit
