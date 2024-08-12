@@ -32,7 +32,6 @@ end entity hamm_enc;
 architecture rtl of hamm_enc is
     constant EVEN_PARITY : boolean := true;
 
-    constant DATA_BITS_SIZE   : positive := hamm_pkg.compute_data_size(PARITY_BITS)-1;
     constant TOTAL_BITS_SIZE  : positive := hamm_pkg.compute_block_size(PARITY_BITS);
     constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
 
