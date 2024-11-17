@@ -1,68 +1,38 @@
-# ------------------------------------------------------------------------------
-# Project: Hamming
-# Engineer: Chase Ruskin
-# Created: 2022-10-07
-# Script: parity_tb
-# Details:
-#   Implements behavioral software model for HDL testbench parity_tb.
-#
-#   Writes files to be used as input data and expected output data during the
-#   HDL simulation.
-# ------------------------------------------------------------------------------
-
-import verity as vy
-from verity.coverage import Coverage, Covergroup, Coverpoint
-from verity.model import SuperBfm, Signal, Mode, InputFile, OutputFile
-import random
 import hamming
 
-# --- Constants ----------------------------------------------------------------
+from verb.model import *
+from verb import context
 
-# define the randomness seed
-R_SEED = vy.get_seed(0)
+class Parity:
 
-# collect generics from command-line and HDL testbench
-GENS = vy.get_generics()
+    def __init__(self, size: int, even_parity: bool):
+        self.size = size
+        self.is_even_par = even_parity
 
-WIDTH = vy.from_vhdl_int(GENS['SIZE'])
-EVEN_PARITY = vy.from_vhdl_bool(GENS['EVEN_PARITY'])
+        self.data = Signal(size)
+        self.check_bit = Signal()
 
-MAX_SIMS = 10_000
+    def setup(self):
+        self.data.sample()
 
-# define the bus functional model
-class Bfm(SuperBfm):
-    entity = 'parity'
-
-    def __init__(self):
-        self.data = Signal(Mode.INPUT, WIDTH)
-
-        self.check_bit = Signal(Mode.OUTPUT)
-        pass
+    def eval(self):
+        result = hamming.set_parity_bit(self.data.get(list), use_even=self.is_even_par)
+        self.check_bit.set(int(result))
 
 
-    def model(self, *args):
-        self.check_bit.set(0)
-        # cast into a `List[int]` type
-        vec = [int(x) for x in self.data.as_logic()]
-        if hamming.set_parity_bit(vec, use_even=EVEN_PARITY) == True:
-            self.check_bit.set(1)
-        return self
-    pass
+def main():
+    mdl = Parity(
+        size=context.generic('SIZE', int),
+        even_parity=context.generic('EVEN_PARITY', bool),
+    )
 
-# --- Logic --------------------------------------------------------------------
+    with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
+        for _ in range(1000):
+            mdl.setup()
+            inputs.push(mdl)
+            mdl.eval()
+            outputs.push(mdl)
 
-vy.parse_args(bfm=Bfm())
 
-random.seed(R_SEED)
-
-# create empty test vector files
-i_file = InputFile()
-o_file = OutputFile()
-
-# generate test cases until total coverage is met or we reached max count
-for _ in range(0, MAX_SIMS):
-    # create a new input to enter through the algorithm
-    txn = Bfm().rand()
-    i_file.write(txn)
-    o_file.write(txn.model())
-    pass
+if __name__ == '__main__':
+    main()

@@ -1,7 +1,7 @@
 [ip]
 name    = "hamming"
 uuid = "cegyya7j6lsn78ftvos7pv5me"
-version = "1.0.1"
+version = "1.0.0"
 description = "Hamming-code SECDED implementation"
 library = "ecc"
 public = ["rtl"]

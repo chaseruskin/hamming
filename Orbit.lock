@@ -4,7 +4,7 @@ version = 1
 
 [[ip]]
 name = "hamming"
-version = "1.0.1"
+version = "1.0.0"
 uuid = "cegyya7j6lsn78ftvos7pv5me"
 url = "https://github.com/chaseruskin/hamming/archive/refs/tags/{{orbit.ip.version}}.zip"
 dependencies = ["verb+1pgjtja7i1rcf0i5ooubqjctt:0.1"]

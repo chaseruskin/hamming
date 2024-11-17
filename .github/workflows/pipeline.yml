@@ -32,6 +32,11 @@ jobs:
         run: |
           pip install -r mdl/requirements.txt
 
+      - name: Test parity
+        run: |
+          orbit t --dut parity -- -g SIZE=8 -g EVEN_PARITY=false
+          orbit t --dut parity -- -g SIZE=5 -g EVEN_PARITY=true
+
       - name: Test hamming encoder
         run: |
           orbit test --dut hamm_enc -- -g PARITY_BITS=2
