@@ -13,6 +13,14 @@ jobs:
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
+        
+      - name: Install Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install verb binary
+        run: cargo install verb --git https://github.com/chaseruskin/verb --tag 0.1.0
 
       - name: Log all tool versions
         run: |
@@ -23,14 +31,6 @@ jobs:
       - name: Install model requirements
         run: |
           pip install -r mdl/requirements.txt
-
-      - name: Install verb binary
-        uses: baptiste0928/cargo-install@v3
-        with:
-          crate: verb
-          git: https://github.com/chaseruskin/verb
-          tag: 0.1.0
-          
 
       - name: Test decoder
         run: |
