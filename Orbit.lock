@@ -13,6 +13,6 @@ dependencies = ["verb+1pgjtja7i1rcf0i5ooubqjctt:0.1"]
 name = "verb"
 version = "0.1.0"
 uuid = "1pgjtja7i1rcf0i5ooubqjctt"
-checksum = "7f439e9cb3a90f5ba342fa501d1bb2c86e13c0354e6f9ae8d0cc0a27ec87eb48"
+checksum = "04acffd56328b9ca53590c837097d0bde2ad2de03bf4bf4a0296673d9e6e484c"
 url = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
 dependencies = []
