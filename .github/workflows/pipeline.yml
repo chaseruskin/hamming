@@ -1,4 +1,4 @@
-name: pipeline
+name: Pipeline
 on: push
 
 env:
@@ -6,7 +6,7 @@ env:
   ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
 
 jobs:
-  simulate:
+  Test:
     runs-on: ubuntu-latest
     container:
       image: chaseruskin/groovy-guitar
@@ -20,9 +20,17 @@ jobs:
           python --version
           ghdl --version
 
-      - name: Install python package Verity
+      - name: Install model requirements
         run: |
           pip install -r mdl/requirements.txt
+
+      - name: Install verb binary
+        uses: baptiste0928/cargo-install@v3
+        with:
+          crate: verb
+          git: https://github.com/chaseruskin/verb
+          tag: 0.1.0
+          
 
       - name: Test decoder
         run: |
@@ -58,7 +66,7 @@ jobs:
 # # orbit b -- -g PARITY_BITS=6
 # # orbit b -- -g PARITY_BITS=2
 
-  build:
+  Build:
     runs-on: ubuntu-latest
     container:
       image: chaseruskin/quiet-quartet
