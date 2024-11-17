@@ -87,7 +87,7 @@ jobs:
           orbit config --push include="targets/chaseruskin/config.toml"
 
       - name: Generate bitstream for hamming encoder
-        run: orbit build --target quartz --top hamm_enc -- -g PARIT_BITS=3 --bit
+        run: orbit build --target quartz --top hamm_enc -- -g PARITY_BITS=3 --bit
 
       - name: Save reports
         uses: actions/upload-artifact@v3

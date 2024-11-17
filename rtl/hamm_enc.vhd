@@ -23,8 +23,8 @@ entity hamm_enc is
         PARITY_BITS : positive range 2 to positive'high 
     );
     port (
-        message  : in  std_logic_vector(hamm_pkg.compute_data_size(PARITY_BITS)-1 downto 0);
-        encoding : out std_logic_vector(hamm_pkg.compute_block_size(PARITY_BITS)-1 downto 0)
+        message  : in  logics(data_size(PARITY_BITS)-1 downto 0);
+        encoding : out logics(block_size(PARITY_BITS)-1 downto 0)
     );
 end entity hamm_enc;
 
@@ -32,18 +32,18 @@ end entity hamm_enc;
 architecture rtl of hamm_enc is
     constant EVEN_PARITY : boolean := true;
 
-    constant TOTAL_BITS_SIZE  : positive := hamm_pkg.compute_block_size(PARITY_BITS);
+    constant TOTAL_BITS_SIZE  : positive := block_size(PARITY_BITS);
     constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
 
-    type hamm_block is array (0 to PARITY_BITS-1) of std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
+    type hamm_block is array (0 to PARITY_BITS-1) of logics(PARITY_LINE_SIZE-1 downto 0);
 
     signal enc_block : hamm_block;
 
     -- +1 parity for the zero-th check bit
-    signal check_bits : std_logic_vector(PARITY_BITS-1+1 downto 0);
+    signal check_bits : logics(PARITY_BITS-1+1 downto 0);
 
-    signal empty_block : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
-    signal full_block  : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
+    signal empty_block : logics(TOTAL_BITS_SIZE-1 downto 0);
+    signal full_block  : logics(TOTAL_BITS_SIZE-1 downto 0);
 
 begin
     --! Formats the incoming message into a clean hamming-code block with parity
@@ -64,15 +64,15 @@ begin
 
     --! divide the entire hamming-code block into parity subset groups
     process(empty_block)
-        variable temp_line : std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
-        variable index     : std_logic_vector(PARITY_BITS-1 downto 0);
+        variable temp_line : logics(PARITY_LINE_SIZE-1 downto 0);
+        variable index     : logics(PARITY_BITS-1 downto 0);
     begin
         for ii in PARITY_BITS-1 downto 0 loop
             temp_line := (others => '0');
             for jj in TOTAL_BITS_SIZE-1 downto 0 loop 
                 -- decode the parity bit index
                 index := (others => '0');
-                index := std_logic_vector(to_unsigned(jj, PARITY_BITS));
+                index := logics(to_unsigned(jj, PARITY_BITS));
 
                 if index(ii) = '1' then 
                     -- insert new bit

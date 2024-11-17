@@ -11,16 +11,20 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package hamm_pkg is
+
+    subtype logic is std_ulogic;
+    subtype logics is std_ulogic_vector;
+
     --! Determines if the `num` is a power of 2. 
     --!
     --! Includes values of 0 and 1.
     function is_pow_2(num: natural) return boolean;
 
     --! Computes the number of data bits for a hamming-code block.
-    function compute_data_size(parity_bits: positive range 2 to positive'high) return positive;
+    function data_size(parity_bits: positive range 2 to positive'high) return positive;
 
     --! Computes the number of bits in the entire hamming-code block.
-    function compute_block_size(parity_bits: positive range 2 to positive'high) return positive;
+    function block_size(parity_bits: positive range 2 to positive'high) return positive;
 
 end package hamm_pkg;
 
@@ -40,12 +44,12 @@ package body hamm_pkg is
         return true;
     end function;
 
-    function compute_data_size(parity_bits: positive range 2 to positive'high) return positive is
+    function data_size(parity_bits: positive range 2 to positive'high) return positive is
     begin
         return (2**parity_bits)-parity_bits-1;
     end function;
 
-    function compute_block_size(parity_bits: positive range 2 to positive'high) return positive is
+    function block_size(parity_bits: positive range 2 to positive'high) return positive is
     begin
         return 2**parity_bits;
     end function;

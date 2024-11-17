@@ -17,13 +17,16 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+library work;
+use work.hamm_pkg.all;
+
 entity decoder is 
     generic (
         SIZE : positive
     );
     port (
-        enc : in  std_ulogic_vector(SIZE-1 downto 0);
-        dec : out std_ulogic_vector((2**SIZE)-1 downto 0)
+        enc : in  logics(SIZE-1 downto 0);
+        dec : out logics((2**SIZE)-1 downto 0)
     );
 end entity decoder;
 

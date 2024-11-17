@@ -22,46 +22,11 @@ A single erroneous bit can be corrected for each hamming-code block (SEC). Any b
 
 ## Organization
 
-- `board/`: pin assignments for FPGA devices
-- `docs/`: references, notes, and specifications
-- `rtl/`: synthesizable HDL code
-- `sim/`: simulation code
-
-## Testing
-
-To test the hamming-code software model:
-```
-python -m unittest discover ./sim/mdl hamming.py
-```
-
-To test the `parity` entity:
-```
-orbit plan --clean --plugin ghdl --top parity 
-orbit b -- -g SIZE=9 
-orbit b -- -g SIZE=4 -g EVEN_PARITY=false
-```
-
-To test the `decoder` entity:
-```
-orbit plan --clean --plugin ghdl --top decoder
-orbit b
-orbit b -- -g SIZE=4
-```
-
-To test the `hamm_enc` entity:
-```
-orbit plan --clean --plugin ghdl --top hamm_enc
-orbit b
-orbit b -- -g PARITY_BITS=4
-```
-
-To test the `hamm_dec` entity:
-```
-orbit plan --clean --plugin ghdl --top hamm_dec
-orbit b
-orbit b -- -g PARITY_BITS=6
-orbit b -- -g PARITY_BITS=2
-```
+- `/board`: pin assignments for FPGA devices
+- `/docs`: references, notes, and specifications
+- `/rtl`: synthesizable HDL code
+- `/sim`: simulation testbench code
+- `/mdl`: simulation model code
 
 ## Reference
 
