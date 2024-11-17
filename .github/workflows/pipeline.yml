@@ -58,15 +58,13 @@ jobs:
           pip install -r "$(orbit env ORBIT_HOME)/targets/chaseruskin/requirements.txt"
           orbit config --push include="targets/chaseruskin/config.toml"
 
-      - name: Generate bitstream for hamming encoder
-        run: orbit build --target quartz --top hamm_enc -- -g PARITY_BITS=3 --bit
+      - name: Synthesize hamming encoder
+        run: orbit build --target quartz --top hamm_enc -- -g PARITY_BITS=8 --synth
 
       - name: Save reports
         uses: actions/upload-artifact@v3
         with:
           name: build-reports
           path: |
-            build/quartus/*.summary
-            build/quartus/*.rpt
-            build/quartus/*.sof
-            build/quartus/*.pof
+            target/quartz/*.summary
+            target/quartz/*.rpt
