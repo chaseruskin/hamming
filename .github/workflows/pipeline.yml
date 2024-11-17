@@ -87,7 +87,7 @@ jobs:
           orbit config --push include="targets/chaseruskin/config.toml"
 
       - name: Generate bitstream for encoder
-        run: orbit build --top decoder -- -g SIZE=4 --bit
+        run: orbit build --target quartz --top decoder -- -g SIZE=4 --bit
 
       - name: Save reports
         uses: actions/upload-artifact@v3
