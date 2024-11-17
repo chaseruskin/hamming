@@ -1,12 +1,14 @@
 [ip]
 name    = "hamming"
+uuid = "cegyya7j6lsn78ftvos7pv5me"
 version = "1.0.1"
+description = "Hamming-code SECDED implementation"
 library = "ecc"
-summary = "Hamming-code SECDED implementation."
+public = ["rtl"]
+source = "https://github.com/chaseruskin/hamming/archive/refs/tags/{{orbit.ip.version}}.zip"
 keywords = ["ecc", "code"]
 
-# To learn more about writing the manifest, see https://c-rus.github.io/orbit/reference/manifest.html
-[dependencies]
+# To learn more about writing the manifest, see https://chaseruskin.github.io/orbit/reference/manifest.html
 
 [dev-dependencies]
-testkit = "1.0.4"
+verb = "0.1"

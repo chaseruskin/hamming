@@ -22,8 +22,8 @@ entity decoder is
         SIZE : positive
     );
     port (
-        enc : in  std_logic_vector(SIZE-1 downto 0);
-        dec : out std_logic_vector((2**SIZE)-1 downto 0)
+        enc : in  std_ulogic_vector(SIZE-1 downto 0);
+        dec : out std_ulogic_vector((2**SIZE)-1 downto 0)
     );
 end entity decoder;
 

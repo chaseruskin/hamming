@@ -5,7 +5,7 @@ jobs:
   simulate:
     runs-on: ubuntu-latest
     container:
-      image: crus800/fpga-simulation
+      image: chaseruskin/groovy-guitar
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
@@ -16,48 +16,48 @@ jobs:
           python --version
           ghdl --version
 
-      - name: Configure orbit profile
+      - name: Install python package Verity
         run: |
-          git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profiles/c-rus"
-          orbit config --append include="profiles/c-rus/config.toml"
+          pip install -r mdl/requirements.txt
 
-      - name: Link python package Verity
+      - name: Test decoder
         run: |
-          pip install -e "$(orbit env ORBIT_HOME)/profiles/c-rus/verity"
-          
-      - name: Simulate parity entity
-        run: |
-          orbit plan --clean --plugin ghdl --top parity
-          cat ./build/blueprint.tsv
-          orbit b -- -g SIZE=9 -g EVEN_PARITY=true
-          orbit b -- -g SIZE=4 -g EVEN_PARITY=false
+          orbit test --dut decoder -- -g SIZE=8
+          orbit test --dut decoder -- -g SIZE=5
 
-      - name: Simulate decoder entity
-        run: |
-          orbit plan --clean --plugin ghdl --top decoder
-          cat ./build/blueprint.tsv
-# orbit b
-# orbit b -- -g SIZE=4
+#       - name: Simulate parity entity
+#         run: |
+#           orbit plan --clean --plugin ghdl --top parity
+#           cat ./build/blueprint.tsv
+#           orbit b -- -g SIZE=9 -g EVEN_PARITY=true
+#           orbit b -- -g SIZE=4 -g EVEN_PARITY=false
 
-      - name: Simulate hamm_enc entity
-        run: |
-          orbit plan --clean --plugin ghdl --top hamm_enc
-          cat ./build/blueprint.tsv
-# orbit b
-# orbit b -- -g PARITY_BITS=4
+#       - name: Simulate decoder entity
+#         run: |
+#           orbit plan --clean --plugin ghdl --top decoder
+#           cat ./build/blueprint.tsv
+# # orbit b
+# # orbit b -- -g SIZE=4
 
-      - name: Simulate hamm_dec entity
-        run: |
-          orbit plan --clean --plugin ghdl --top hamm_dec
-          cat ./build/blueprint.tsv
-# orbit b
-# orbit b -- -g PARITY_BITS=6
-# orbit b -- -g PARITY_BITS=2
+#       - name: Simulate hamm_enc entity
+#         run: |
+#           orbit plan --clean --plugin ghdl --top hamm_enc
+#           cat ./build/blueprint.tsv
+# # orbit b
+# # orbit b -- -g PARITY_BITS=4
+
+#       - name: Simulate hamm_dec entity
+#         run: |
+#           orbit plan --clean --plugin ghdl --top hamm_dec
+#           cat ./build/blueprint.tsv
+# # orbit b
+# # orbit b -- -g PARITY_BITS=6
+# # orbit b -- -g PARITY_BITS=2
 
   build:
     runs-on: ubuntu-latest
     container:
-      image: crus800/fpga-toolchain
+      image: chaseruskin/quiet-quartet
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
@@ -70,14 +70,12 @@ jobs:
 
       - name: Configure orbit profile
         run: |
-          git clone https://github.com/c-rus/orbit-profile.git "$(orbit env ORBIT_HOME)/profiles/c-rus"
-          orbit config --append include="profiles/c-rus/config.toml"
-          pip install toml
+          git clone https://github.com/chaseruskin/orbit-targets.git "$(orbit env ORBIT_HOME)/targets/chaseruskin"
+          pip install -r "$(orbit env ORBIT_HOME)/targets/chaseruskin/requirements.txt"
+          orbit config --push include="targets/chaseruskin/config.toml"
 
       - name: Generate bitstream for encoder
-        run: |
-          orbit plan --clean --plugin quartus --top hamm_enc 
-          orbit b -- -g PARITY_BITS=3 --bit
+        run: orbit build --top decoder -- -g SIZE=4 --bit
 
       - name: Save reports
         uses: actions/upload-artifact@v3
