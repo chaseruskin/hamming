@@ -38,6 +38,12 @@ jobs:
           orbit test --dut hamm_enc -- -g PARITY_BITS=4
           orbit test --dut hamm_enc -- -g PARITY_BITS=5
 
+      - name: Test hamming decoder
+        run: |
+          orbit test --dut hamm_dec -- -g PARITY_BITS=2
+          orbit test --dut hamm_dec -- -g PARITY_BITS=4
+          orbit test --dut hamm_dec -- -g PARITY_BITS=5
+
   Build:
     runs-on: ubuntu-latest
     container:

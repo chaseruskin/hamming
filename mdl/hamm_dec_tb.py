@@ -1,63 +1,46 @@
-# ------------------------------------------------------------------------------
-# Project: Hamming
-# Engineer: Chase Ruskin
-# Created: 2022-10-11
-# Script: hamm_dec_tb
-# Details:
-#   Implements behavioral software model for HDL testbench hamm_dec_tb.
-#
-#   Writes files to be used as input data and expected output data during the
-#   HDL simulation.
-# ------------------------------------------------------------------------------
-
+from hamming import HammingCode, send
 import random
-import hamming
-from hamming import HammingCode
-# @note: uncomment the following line to use custom python module for testbenches
-from toolbox import toolbox as tb
+from verb.model import *
+from verb import context
+
+class HammDec:
+
+    def __init__(self, parity_bits: int):
+        self.parity_bits = parity_bits
+        self._code = HammingCode(parity_bits=parity_bits)
+
+        self.encoding = Signal(self._code.get_total_bits_len())
+        self.message = Signal(self._code.get_data_bits_len())
+        self.corrected = Signal()
+        self.valid = Signal()
+
+    def setup(self):
+        message = Signal(self._code.get_data_bits_len())
+        message.sample()
+        
+        encoding = self._code.encode(message.get(list)[::-1])
+        # choose some bits to flip (or none) by injecting noise
+        packet = send(encoding, noise=random.randint(0, 4), spots=[])
+
+        self.encoding.set(packet[::-1])
+
+    def eval(self):
+        decoding, corrected, valid = self._code.decode(self.encoding.get(list)[::-1])
+        self.message.set(decoding[::-1])
+        self.corrected.set(int(corrected))
+        self.valid.set(int(valid))
 
 
-# --- Constants ----------------------------------------------------------------
+def main():
+    mdl = HammDec(context.generic('PARITY_BITS', int))
 
-TESTS = 100
-R_SEED = 9
+    with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
+        for _ in range(1000):
+            mdl.setup()
+            inputs.push(mdl)
+            mdl.eval()
+            outputs.push(mdl)
 
-IN_FILE_NAME  = 'inputs.dat'
-OUT_FILE_NAME = 'outputs.dat'
 
-# --- Logic --------------------------------------------------------------------
-
-random.seed(R_SEED)
-# collect generics from HDL testbench file and command-line
-generics = tb.get_generics()
-
-PARITY_BITS = int(generics['PARITY_BITS'])
-
-input_file = open(IN_FILE_NAME, 'w')
-output_file = open(OUT_FILE_NAME, 'w')
-
-hc = HammingCode(PARITY_BITS)
-
-for _ in range(0, TESTS):
-    # generate random message
-    message = [random.randint(0, 1) for _ in range(0, hc.get_data_bits_len())]
-    # encode the random message
-    encoding = hc.encode(message)
-    # transmit the encoded message
-    packet = hamming.send(encoding, noise=random.randint(0, 4), spots=[])
-    # write packet to input file
-    tb.write_bits(input_file,
-        tb.vec_int_to_str(packet)
-    )
-    # decode the message and control signals
-    decoding, corrected, valid = hc.decode(packet)
-    # write the outputs to file
-    tb.write_bits(output_file,
-        tb.vec_int_to_str(decoding),
-        int(corrected),
-        int(valid))
-    pass
-
-# close files
-input_file.close()
-output_file.close()
+if __name__ == '__main__':
+    main()

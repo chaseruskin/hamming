@@ -1,17 +1,11 @@
---------------------------------------------------------------------------------
---! Project  : Hamming
---! Engineer : Chase Ruskin
---! Created  : 2022-10-10
---! Entity   : hamm_dec
---! Details  :
---!     Generic hamming-code decoder that takes a block `encoding` and decodes
---!     it with corresponding parity bits into a `message` from extended 
---!     hamming code (SECDED).
---!
---!     The output port `corrected` is raised when the incoming `encoding`
---!     experienced a single-error correction. The output port `valid` is lowered
---!     if the incoming `encoding` detected a double-bit error.  
---------------------------------------------------------------------------------
+-- Generic hamming-code decoder that takes a block `encoding` and decodes
+-- it with corresponding parity bits into a `message` from extended 
+-- hamming code (SECDED).
+--  
+-- The output port `corrected` is raised when the incoming `encoding`
+-- experienced a single-error correction. The output port `valid` is lowered
+-- if the incoming `encoding` detected a double-bit error.  
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -25,12 +19,12 @@ entity hamm_dec is
         PARITY_BITS : positive range 2 to positive'high 
     );
     port (
-        encoding  : in  std_logic_vector(compute_block_size(PARITY_BITS)-1 downto 0);
-        message   : out std_logic_vector(compute_data_size(PARITY_BITS)-1 downto 0);
+        encoding  : in  logics(block_size(PARITY_BITS)-1 downto 0);
+        message   : out logics(data_size(PARITY_BITS)-1 downto 0);
         --! flag single-error correction (SEC)
-        corrected : out std_logic;
+        corrected : out logic;
         --! flag double-error detection (DED)
-        valid     : out std_logic
+        valid     : out logic
     ); 
 end entity hamm_dec;
 
@@ -38,37 +32,37 @@ end entity hamm_dec;
 architecture rtl of hamm_dec is
     constant EVEN_PARITY : boolean := true;
 
-    constant TOTAL_BITS_SIZE  : positive := hamm_pkg.compute_block_size(PARITY_BITS);
+    constant TOTAL_BITS_SIZE  : positive := block_size(PARITY_BITS);
     constant PARITY_LINE_SIZE : positive := TOTAL_BITS_SIZE/2;
 
     -- compare against the `err_address`
-    constant ZEROS : std_logic_vector(PARITY_BITS-1 downto 0) := (others => '0');
+    constant ZEROS : logics(PARITY_BITS-1 downto 0) := (others => '0');
 
-    type hamm_block is array (0 to PARITY_BITS-1) of std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
+    type hamm_block is array (0 to PARITY_BITS-1) of logics(PARITY_LINE_SIZE-1 downto 0);
 
     signal dec_block : hamm_block;
 
     -- flag for detecting an error in the entire hamming-code block
-    signal err_detected : std_logic;
+    signal err_detected : logic;
     -- address pinpointing the erroneous bit in the hamming-code block
-    signal err_address  : std_logic_vector(PARITY_BITS-1 downto 0);
+    signal err_address  : logics(PARITY_BITS-1 downto 0);
 
     -- the encoding after any bit manipulation/correction
-    signal encoding_mod : std_logic_vector(TOTAL_BITS_SIZE-1 downto 0);
+    signal encoding_mod : logics(TOTAL_BITS_SIZE-1 downto 0);
 
 begin
 
     --! divide the entire hamming-code block into parity subset groups
     process(encoding)
-        variable temp_line : std_logic_vector(PARITY_LINE_SIZE-1 downto 0);
-        variable index     : std_logic_vector(PARITY_BITS-1 downto 0);
+        variable temp_line : logics(PARITY_LINE_SIZE-1 downto 0);
+        variable index     : logics(PARITY_BITS-1 downto 0);
     begin
         for ii in PARITY_BITS-1 downto 0 loop
             temp_line := (others => '0');
             for jj in TOTAL_BITS_SIZE-1 downto 0 loop 
                 -- decode the parity bit index
                 index := (others => '0');
-                index := std_logic_vector(to_unsigned(jj, PARITY_BITS));
+                index := logics(to_unsigned(jj, PARITY_BITS));
 
                 if index(ii) = '1' then 
                     -- insert new bit
@@ -121,7 +115,7 @@ begin
         ctr := 0;
         for ii in 0 to TOTAL_BITS_SIZE-1 loop
             -- take only information bits (non-powers of 2) from encoding
-            if hamm_pkg.is_pow_2(ii) = false then
+            if is_pow_2(ii) = false then
                 message(ctr) <= encoding_mod(ii);
                 ctr := ctr + 1;
             end if;

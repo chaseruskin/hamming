@@ -1,4 +1,3 @@
-
 -- Generic hamming-code encoder that takes a message `message` and packages
 -- it with corresponding parity bits into an `encoding` for extended 
 -- hamming code (SECDED).
