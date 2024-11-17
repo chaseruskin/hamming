@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Fetch repository
         uses: actions/checkout@v3
-        
+
       - name: Install Cargo
         uses: actions-rs/toolchain@v1
         with:
@@ -86,8 +86,8 @@ jobs:
           pip install -r "$(orbit env ORBIT_HOME)/targets/chaseruskin/requirements.txt"
           orbit config --push include="targets/chaseruskin/config.toml"
 
-      - name: Generate bitstream for encoder
-        run: orbit build --target quartz --top decoder -- -g SIZE=4 --bit
+      - name: Generate bitstream for hamming encoder
+        run: orbit build --target quartz --top hamm_enc -- -g PARIT_BITS=3 --bit
 
       - name: Save reports
         uses: actions/upload-artifact@v3
