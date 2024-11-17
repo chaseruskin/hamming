@@ -1,21 +1,17 @@
---------------------------------------------------------------------------------
---! Project  : Hamming
---! Engineer : Chase Ruskin
---! Created  : 2022-10-07
---! Entity   : hamm_enc
---! Details  :
---!     Generic hamming-code encoder that takes a message `message` and packages
---!     it with corresponding parity bits into an `encoding` for extended 
---!     hamming code (SECDED).
---!
---!     Implemented in purely combinational logic. Parity bits are set in the
---!     indices corresponding to powers of 2 (0, 1, 2, 4, 8, ...).
---------------------------------------------------------------------------------
+
+-- Generic hamming-code encoder that takes a message `message` and packages
+-- it with corresponding parity bits into an `encoding` for extended 
+-- hamming code (SECDED).
+--
+-- Implemented in purely combinational logic. Parity bits are set in the
+-- indices corresponding to powers of 2 (0, 1, 2, 4, 8, ...).
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+
 library work;
-use work.hamm_pkg;
+use work.hamm_pkg.all;
 
 entity hamm_enc is 
     generic (
@@ -55,7 +51,7 @@ begin
         ctr := 0;
         for ii in 0 to TOTAL_BITS_SIZE-1 loop
             -- use information bit otherwise reserve for parity bit
-            if hamm_pkg.is_pow_2(ii) = false then
+            if is_pow_2(ii) = false then
                 empty_block(ii) <= message(ctr);
                 ctr := ctr + 1;
             end if;
@@ -105,7 +101,7 @@ begin
 
         for ii in 1 to TOTAL_BITS_SIZE-1 loop
             -- use information bit otherwise reserve for parity bit
-            if hamm_pkg.is_pow_2(ii) = true then
+            if is_pow_2(ii) = true then
                 full_block(ii) <= check_bits(ctr);
                 ctr := ctr + 1;
             end if;

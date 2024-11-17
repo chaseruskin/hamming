@@ -32,39 +32,11 @@ jobs:
         run: |
           pip install -r mdl/requirements.txt
 
-      - name: Test decoder
+      - name: Test hamming encoder
         run: |
-          orbit test --dut decoder -- -g SIZE=8
-          orbit test --dut decoder -- -g SIZE=5
-
-#       - name: Simulate parity entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top parity
-#           cat ./build/blueprint.tsv
-#           orbit b -- -g SIZE=9 -g EVEN_PARITY=true
-#           orbit b -- -g SIZE=4 -g EVEN_PARITY=false
-
-#       - name: Simulate decoder entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top decoder
-#           cat ./build/blueprint.tsv
-# # orbit b
-# # orbit b -- -g SIZE=4
-
-#       - name: Simulate hamm_enc entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top hamm_enc
-#           cat ./build/blueprint.tsv
-# # orbit b
-# # orbit b -- -g PARITY_BITS=4
-
-#       - name: Simulate hamm_dec entity
-#         run: |
-#           orbit plan --clean --plugin ghdl --top hamm_dec
-#           cat ./build/blueprint.tsv
-# # orbit b
-# # orbit b -- -g PARITY_BITS=6
-# # orbit b -- -g PARITY_BITS=2
+          orbit test --dut hamm_enc -- -g PARITY_BITS=1
+          orbit test --dut hamm_enc -- -g PARITY_BITS=4
+          orbit test --dut hamm_enc -- -g PARITY_BITS=5
 
   Build:
     runs-on: ubuntu-latest

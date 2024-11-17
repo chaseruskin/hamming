@@ -1,58 +1,34 @@
-# ------------------------------------------------------------------------------
-# Project: Hamming
-# Engineer: Chase Ruskin
-# Created: 2022-10-09
-# Script: hamm_enc_tb
-# Details:
-#   Implements behavioral software model for HDL testbench hamm_enc_tb.
-#
-#   Writes files to be used as input data and expected output data during the
-#   HDL simulation.
-# ------------------------------------------------------------------------------
-
-# @note: uncomment the following lines to use custom python module for testbenches
-from toolbox import toolbox as tb
-import random
 from hamming import HammingCode
 
-# --- Constants ----------------------------------------------------------------
+from verb.model import *
+from verb import context
 
-TESTS = 100
-R_SEED = 8
+class HammEnc:
 
-IN_FILE_NAME  = 'inputs.dat'
-OUT_FILE_NAME = 'outputs.dat'
+    def __init__(self, parity_bits: int):
+        self.parity_bits = parity_bits
+        self._code = HammingCode(parity_bits=parity_bits)
 
-# --- Logic --------------------------------------------------------------------
+        self.message = Signal(self._code.get_data_bits_len())
+        self.encoding = Signal(self._code.get_total_bits_len())
 
-random.seed(R_SEED)
+    def setup(self):
+        self.message.sample()
 
-# collect generics from HDL testbench file and command-line
-generics = tb.get_generics()
+    def eval(self):
+        bits = self._code.encode(self.message.get(list)[::-1])
+        self.encoding.set(bits[::-1])
 
-PARITY_BITS = int(generics['PARITY_BITS'])
+def main():
+    mdl = HammEnc(context.generic('PARITY_BITS', int))
 
-input_file = open(IN_FILE_NAME, 'w')
-output_file = open(OUT_FILE_NAME, 'w')
+    with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
+        for _ in range(1000):
+            mdl.setup()
+            inputs.push(mdl)
+            mdl.eval()
+            outputs.push(mdl)
 
-hc = HammingCode(PARITY_BITS)
 
-for _ in range(0, TESTS):
-    # generate a random message
-    message = [random.randint(0, 1) for _ in range(0, hc.get_data_bits_len())]
-
-    # write message to inputs
-    tb.write_bits(input_file, 
-        tb.vec_int_to_str(message))
-
-    # encode the message into hamming block
-    hamm_block = hc.encode(message)
-
-    # write block to outputs
-    tb.write_bits(output_file,
-        tb.vec_int_to_str(hamm_block))
-    pass
-
-# close files
-input_file.close()
-output_file.close()
+if __name__ == '__main__':
+    main()

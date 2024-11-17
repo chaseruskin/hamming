@@ -16,6 +16,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library work;
+use work.hamm_pkg.all;
+
 entity parity is 
     generic (
         --! data width
@@ -24,8 +27,8 @@ entity parity is
         EVEN_PARITY : boolean := true
     );
     port (
-        data      : in  std_logic_vector(SIZE-1 downto 0);
-        check_bit : out std_logic
+        data      : in  logics(SIZE-1 downto 0);
+        check_bit : out logic
     );
 end entity parity;
 
@@ -34,7 +37,7 @@ architecture rtl of parity is
 begin  
 
     process(data)
-        variable check_bit_i : std_logic;
+        variable check_bit_i : logic;
     begin
         -- read each bit in data and flip based on counting '1's
         check_bit_i := data(0);
