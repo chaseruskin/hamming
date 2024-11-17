@@ -34,7 +34,7 @@ jobs:
 
       - name: Test hamming encoder
         run: |
-          orbit test --dut hamm_enc -- -g PARITY_BITS=1
+          orbit test --dut hamm_enc -- -g PARITY_BITS=2
           orbit test --dut hamm_enc -- -g PARITY_BITS=4
           orbit test --dut hamm_enc -- -g PARITY_BITS=5
 
