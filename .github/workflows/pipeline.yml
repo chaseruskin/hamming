@@ -18,11 +18,8 @@ jobs:
       - name: Install verb binary
         run: cargo install verb --git https://github.com/chaseruskin/verb --tag 0.1.0
 
-      - name: Log all tool versions
-        run: |
-          orbit --version  
-          python --version
-          ghdl --version
+      - name: Log tools
+        run: source /etc/tools
 
       - name: Install model requirements
         run: |
@@ -53,11 +50,8 @@ jobs:
       - name: Fetch repository
         uses: actions/checkout@v4
 
-      - name: Log all tool versions
-        run: |
-          orbit --version  
-          python --version
-          quartus_sh --version
+      - name: Log tools
+        run: source /etc/tools
 
       - name: Configure orbit profile
         run: |
