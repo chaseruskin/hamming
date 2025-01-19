@@ -19,7 +19,7 @@ jobs:
         run: cargo install verb --git https://github.com/chaseruskin/verb --tag 0.1.0
 
       - name: Log tools
-        run: source /etc/tools
+        run: bash /etc/tools
 
       - name: Install model requirements
         run: |
@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Log tools
-        run: source /etc/tools
+        run: bash /etc/tools
 
       - name: Configure orbit profile
         run: |
