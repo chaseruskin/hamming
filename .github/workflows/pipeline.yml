@@ -1,18 +1,14 @@
 name: Pipeline
 on: push
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-  ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
-
 jobs:
   Test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
-      image: chaseruskin/groovy-guitar
+      image: chaseruskin/groovy-guitar:latest
     steps:
       - name: Fetch repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Cargo
         uses: actions-rs/toolchain@v1
@@ -50,12 +46,12 @@ jobs:
           orbit test --dut hamm_dec -- -g PARITY_BITS=5
 
   Build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
-      image: chaseruskin/quiet-quartet
+      image: chaseruskin/quiet-quartet:latest
     steps:
       - name: Fetch repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log all tool versions
         run: |
@@ -73,7 +69,7 @@ jobs:
         run: orbit build --target quartz --top hamm_enc -- -g PARITY_BITS=8 --synth
 
       - name: Save reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-reports
           path: |
