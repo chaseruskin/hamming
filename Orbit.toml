@@ -8,28 +8,16 @@ public = ["src"]
 keywords = ["ecc", "code"]
 
 [dependencies]
-steel = "1.0"
+steel = { path = "../hysplabs/steel", version = "1" }
 
-
-[[project.metadata.test]]
-dut = "parity"
-trials = [
-    { generics = { W = 5, EVEN = true } },
-    { generics = { W = 8, EVEN = false } },
-]
-
-[[project.metadata.test]]
-dut = "hamming_enc"
-trials = [
-    { generics = { K = 4 } },
-    { generics = { K = 32 } },
-    { generics = { K = 64 } },
-]
-
-[[project.metadata.test]]
-dut = "hamming_dec"
-trials = [
-    { generics = { K = 4 } },
-    { generics = { K = 32 } },
-    { generics = { K = 64 } },
+[project.metadata.test]
+unit = [
+    { dut = "parity", generics = { W = 5, EVEN = true } },
+    { dut = "parity", generics = { W = 8, EVEN = false } },
+    { dut = "hamming_enc", generics = {K = 4 } },
+    { dut = "hamming_enc", generics = {K = 32 } },
+    { dut = "hamming_enc", generics = {K = 64 } },
+    { dut = "hamming_dec", generics = {K = 4 } },
+    { dut = "hamming_dec", generics = {K = 32 } },
+    { dut = "hamming_dec", generics = {K = 64 } },
 ]
